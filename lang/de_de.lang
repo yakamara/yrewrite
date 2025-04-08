@@ -113,11 +113,11 @@ yrewrite_index_index = Indexierung erlauben / in Sitemap anzeigen (Index)
 yrewrite_index_noindex = Indexierung verbieten / nicht in Sitemap anzeigen (NoIndex)
 yrewrite_index_noindex_follow = Indexierung verbieten und Links folgen / nicht in Sitemap anzeigen (NoIndex)
 
-yrewrite_htaccess_hasbeenset = .htaccess-Datei wurde gesetzt/ersetzt
+yrewrite_htaccess_hasbeenset = .htaccess-Datei wurde gesetzt/ersetzt. Backup-Datei der .htaccess wurde im Root-Verzeichnis erstellt.
 yrewrite_htaccess_set = .htaccess-Datei setzen
-yrewrite_htaccess_hasnotbeenset = .htaccess-Datei konnte nicht gesetzt/ersetzt werden - Überprüfe die Schreibrechte
+yrewrite_htaccess_copy_confirm = Eine bestehende .htaccess-Datei wird überschrieben. Fortfahren?
 
-yrewrite_htaccess_info = Um YRewrite in Betrieb zu nehmen, wird eine .htaccess-Datei im Root-Ordner erstellt. Ist eine andere .htaccess-Datei bereits vorhanden, wird diese ersetzt. Bitte ggf. die .htaccess-Datei vorher sichern.
+yrewrite_htaccess_info = Um YRewrite in Betrieb zu nehmen, wird eine .htaccess-Datei im Root-Ordner erstellt. Ist eine andere .htaccess-Datei bereits vorhanden, wird diese ersetzt und im Root-Verzeichnis unter <code>.htacess-backup-timestamp</code> gesichert.
 
 yrewrite_info_headline = Verwendung von YRewrite
 yrewrite_info_text = Da YRewrite für <mark>Multidomainlösungen</mark> gedacht ist, gibt es bestimmte Vorraussetzungen. Alle URL-Ersetzungen werden über YRewrite geregelt. D.h. es kann vorkommen, dass eine URL situationsbedingt auch den Domainnamen enthält. In den Templates bitte auch deswegen <mark>keinen base-Tag verwenden</mark>. Sollte etwas durcheinanderkommen, durch Eigenentwicklungen oder ähnlichem, bitte den allgemeinen Cache löschen. Das ermöglicht YRewrite die Config- und URL-Dateien neu zu erstellen.
