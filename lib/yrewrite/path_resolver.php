@@ -68,15 +68,34 @@ class rex_yrewrite_path_resolver
 
         $url = ltrim($url, '/');
 
+        // Verhindert ERR_TOO_MANY_REDIRECTS Fehler bei automatischer Spracherkennung
+        // und versteckter Startsprache
         if ('' === $url && $domain->isStartClangAuto()) {
             $startClang = $this->resolveAutoStartClang($domain);
-
+            
+            // Wenn die erkannte Sprache die versteckte Startsprache ist, 
+            // keine Umleitung durchführen um Endlosschleifen zu vermeiden
+            if ($domain->isStartClangHidden() && $startClang === $domain->getStartClang()) {
+                $hreflangs = [];
+                foreach ((new rex_yrewrite_seo())->getHrefLangs() as $lang => $href) {
+                    $hreflangs[] = "<$href>;  rel=\"alternate\"; hreflang=\"$lang\"";
+                }
+                header('Link: '.implode(', ', $hreflangs));
+                
+                // Direkt Startseite mit korrekter Sprache ausliefern
+                $structureAddon = rex_addon::get('structure');
+                $structureAddon->setProperty('start_article_id', $domain->getStartId());
+                $structureAddon->setProperty('article_id', $domain->getStartId());
+                rex_clang::setCurrentId($startClang);
+                return;
+            }
+            
             $hreflangs = [];
             foreach ((new rex_yrewrite_seo())->getHrefLangs() as $lang => $href) {
                 $hreflangs[] = "<$href>;  rel=\"alternate\"; hreflang=\"$lang\"";
             }
             header('Link: '.implode(', ', $hreflangs));
-
+            
             $this->redirect($currentScheme . '://' . $host, rex_getUrl($domain->getStartId(), $startClang), $params, '302 Found');
         }
 
