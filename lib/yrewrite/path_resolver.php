@@ -73,7 +73,7 @@ class rex_yrewrite_path_resolver
         if ('' === $url && $domain->isStartClangAuto()) {
             $startClang = $this->resolveAutoStartClang($domain);
             
-            // Wenn die erkannte Sprache die versteckte Startsprache ist, 
+            // Wenn die erkannte Sprache die versteckte Startsprache ist,
             // keine Umleitung durchführen um Endlosschleifen zu vermeiden
             if ($domain->isStartClangHidden() && $startClang === $domain->getStartClang()) {
                 $hreflangs = [];
