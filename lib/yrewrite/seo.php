@@ -61,6 +61,7 @@ class rex_yrewrite_seo
         $title = rex_escape($this->getTitle());
         $tags['title'] = '<title>'.$title.'</title>';
         $tagsOg['og:title'] = '<meta property="og:title" content="'.$title.'">';
+        $tagsOg['og:type'] = '<meta property="og:type" content="website">';
         $tagsTwitter['twitter:title'] = '<meta name="twitter:title" content="'.$title.'">';
 
         $description = rex_escape($this->getDescription());
