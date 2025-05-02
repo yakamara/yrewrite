@@ -77,11 +77,6 @@ class rex_yrewrite_path_resolver
             // oder der Besucher direkt über die Domain ohne Pfad zugreift,
             // immer die Startsprache verwenden ohne Weiterleitung
             if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) || $_SERVER['HTTP_USER_AGENT'] === 'Googlebot') {
-                $hreflangs = [];
-                foreach ((new rex_yrewrite_seo())->getHrefLangs() as $lang => $href) {
-                    $hreflangs[] = "<$href>;  rel=\"alternate\"; hreflang=\"$lang\"";
-                }
-                header('Link: '.implode(', ', $hreflangs));
                 // Direkt Startseite mit Startsprache ausliefern
                 $structureAddon = rex_addon::get('structure');
                 $structureAddon->setProperty('start_article_id', $domain->getStartId());
@@ -93,11 +88,6 @@ class rex_yrewrite_path_resolver
             // Wenn die erkannte Sprache die versteckte Startsprache ist,
             // keine Umleitung durchführen um Endlosschleifen zu vermeiden
             if ($domain->isStartClangHidden() && $startClang === $domain->getStartClang()) {
-                $hreflangs = [];
-                foreach ((new rex_yrewrite_seo())->getHrefLangs() as $lang => $href) {
-                    $hreflangs[] = "<$href>;  rel=\"alternate\"; hreflang=\"$lang\"";
-                }
-                header('Link: '.implode(', ', $hreflangs));
                 // Direkt Startseite mit korrekter Sprache ausliefern
                 $structureAddon = rex_addon::get('structure');
                 $structureAddon->setProperty('start_article_id', $domain->getStartId());
@@ -105,11 +95,7 @@ class rex_yrewrite_path_resolver
                 rex_clang::setCurrentId($startClang);
                 return;
             }
-            $hreflangs = [];
-            foreach ((new rex_yrewrite_seo())->getHrefLangs() as $lang => $href) {
-                $hreflangs[] = "<$href>;  rel=\"alternate\"; hreflang=\"$lang\"";
-            }
-            header('Link: '.implode(', ', $hreflangs));
+            
             $this->redirect($currentScheme . '://' . $host, rex_getUrl($domain->getStartId(), $startClang), $params, '302 Found');
         }
 
