@@ -583,8 +583,8 @@ class rex_yrewrite
 
     public static function getHost()
     {
-        if (isset($_SERVER['HTTP_X_FORWARDED_SERVER'])) {
-            return $_SERVER['HTTP_X_FORWARDED_SERVER'];
+        if (isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
+            return $_SERVER['HTTP_X_FORWARDED_HOST'];
         }
         return @$_SERVER['HTTP_HOST'];
     }
