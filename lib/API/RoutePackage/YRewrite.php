@@ -3,6 +3,7 @@
 namespace Yakamara\YRewrite\Api\RoutePackage;
 
 use Exception;
+use FriendsOfRedaxo\Api\Auth\BearerAuth;
 use FriendsOfRedaxo\Api\RouteCollection;
 use rex;
 use rex_article;
@@ -30,12 +31,18 @@ class YRewrite
                 [
                     '_controller' => 'Yakamara\YRewrite\Api\RoutePackage\YRewrite::handleGetArticle',
                 ],
-                ['id' => '\d+'],
+                [
+                    'id' => '\d+',
+                    'clang_id' => '\d+',
+                ],
                 [],
                 '',
                 [],
                 ['GET']),
             'Get seo data of article',
+            null,
+            new BearerAuth(),
+            ['yrewrite'],
         );
 
         // Article Update Seo Details
@@ -61,12 +68,17 @@ class YRewrite
                     ],
                     'bodyContentType' => 'application/json',
                 ],
-                ['id' => '\d+'],
+                ['id' => '\d+',
+                    'clang_id' => '\d+',
+                ],
                 [],
                 '',
                 [],
                 ['PUT', 'PATCH']),
             'Update seo data of article',
+            null,
+            new BearerAuth(),
+            ['yrewrite'],
         );
     }
 
