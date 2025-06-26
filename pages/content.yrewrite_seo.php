@@ -72,7 +72,7 @@ if ($yform->objparams['actions_executed']) {
 }
 
 $form .= '
-    <script>
+    <script nonce="' . rex_response::getNonce() . '">
         jQuery(document).ready(function () {
             jQuery("#yrewrite-seo #yform-yrewrite-seo-yrewrite_description").append(\'<p class="help-block"><small></small></p>\');
             jQuery("#yrewrite-seo #yform-yrewrite-seo-yrewrite_description textarea").bind ("change input keyup keydown keypress mouseup mousedown cut copy paste", function (e) {

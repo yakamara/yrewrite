@@ -76,4 +76,4 @@ echo '<section class="rex-docs">
     </div>
 </section>';
 // Dirty image overflow fix
-echo '<style> .rex-docs img { max-width: 100%; } </style>';
+echo '<style nonce="' . rex_response::getNonce() . '"> .rex-docs img { max-width: 100%; } </style>';
