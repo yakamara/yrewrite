@@ -40,28 +40,28 @@ if ('' != $func) {
     $yform->setValidateField('empty', ['notfound_id', $this->i18n('no_not_found_id_defined')]);
 
     $yform->setValueField('choice', ['clangs', $this->i18n('clangs'), 'select id, name from '.rex::getTable('clang'), 0, 1, '', '', '', '', '', '', '', '<small>'.$this->i18n('clangs_info').'</small>']);
-    $yform->setValueField('checkbox', ['clang_start_auto', $this->i18n('clang_start_auto')]);
     $yform->setValueField('choice', ['clang_start', $this->i18n('clang_start'), 'select id, name from '.rex::getTable('clang'), 0, 0, '', '', '', '', '', '', '', '<small>'.$this->i18n('clang_start_info').'</small>']);
-    $yform->setValueField('checkbox', ['clang_start_hidden', $this->i18n('clang_start_hidden')]);
+    $yform->setValueField('checkbox', ['clang_start_hidden', $this->i18n('clang_start_hidden'), 'attributes' => ['data-yrewrite-clang-start-hidden' => '1']]);
+    $yform->setValueField('checkbox', ['clang_start_auto', $this->i18n('clang_start_auto'), 'attributes' => ['data-yrewrite-clang-start-auto' => '1']]);
     $yform->setValueField('text', ['title_scheme', $this->i18n('domain_title_scheme'), rex_yrewrite_seo::$title_scheme_default, 'notice' => '<small>'.$this->i18n('domain_title_scheme_info').'</small>']);
     $yform->setValueField('checkbox', ['auto_redirect', $this->i18n('auto_redirects'), 'notice' => '<small>'.$this->i18n('yrewrite_auto_redirect').'</small>']);
     $yform->setValueField('text', ['auto_redirect_days', $this->i18n('yrewrite_auto_redirect_days'), 'notice' => '<small>'.$this->i18n('yrewrite_auto_redirect_days_info').'</small>']);
 
     $js = '
-        <script>
+        <script nonce="' . rex_response::getNonce() . '">
             (function () {
-                var startClangAuto = document.getElementById(\'yform-yrewrite_domains_form-field-10\');
-                var startClangHidden = document.getElementById(\'yform-yrewrite_domains_form-field-12\');
+                var startClangAuto = document.querySelector(\'[data-yrewrite-clang-start-auto]\');
+                var startClangHidden = document.querySelector(\'[data-yrewrite-clang-start-hidden]\');
 
-                startClangAuto.addEventListener("change", function () {
-                    if (startClangAuto.checked) {
-                        startClangHidden.disabled = true;
-                        startClangHidden.checked = false;
+                startClangHidden.addEventListener("change", function () {
+                    if (startClangHidden.checked) {
+                        startClangAuto.disabled = true;
+                        startClangAuto.checked = false;
                     } else {
-                        startClangHidden.disabled = false;
+                        startClangAuto.disabled = false;
                     }
                 });
-                startClangAuto.dispatchEvent(new Event("change"));
+                startClangHidden.dispatchEvent(new Event("change"));
             })();
         </script>
     ';
