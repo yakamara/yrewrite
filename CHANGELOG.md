@@ -1,6 +1,22 @@
 Changelog
 =========
 
+Version 2.12.0 – 26.06.2025
+---------------------------
+
+### Neu
+
+* og:type ergänzt (Thorol)
+* YForm 5 erlauben
+
+### Bugs
+
+* Startsprache-Auto und Startsprach-Hidden als Kombi verhindern
+* Fix Warning (Norbert Micheel)
+* Fix forwarded host determination (Ralf Leifel)
+* Nonce an weiteren Stellen verwenden
+
+
 Version 2.11.0 – 21.03.2025
 ---------------------------
 
