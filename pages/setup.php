@@ -19,8 +19,11 @@ if ('' != $func) {
         echo rex_view::error(rex_i18n::msg('csrf_token_invalid'));
     } else {
         if ('htaccess' == $func) {
-            rex_yrewrite::copyHtaccess();
-            echo rex_view::success($this->i18n('htaccess_hasbeenset'));
+            if (rex_yrewrite::copyHtaccess()) {
+                echo rex_view::success($this->i18n('htaccess_hasbeenset'));
+            } else {
+                echo rex_view::error($this->i18n('htaccess_hasnotbeenset'));
+            }
         }
     }
 }

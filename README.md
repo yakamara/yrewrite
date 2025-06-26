@@ -66,7 +66,7 @@ rewrite ^/media/(.*)                              /index.php?rex_media_type=yrew
 rewrite ^/images/([^/]*)/([^/]*)                  /index.php?rex_media_type=$1&rex_media_file=$2&$args;
 rewrite ^/imagetypes/([^/]*)/([^/]*)              /index.php?rex_media_type=$1&rex_media_file=$2;
 
-# !!! WICHTIG !!! Falls Let's Encrypt fehlschlägt, diese Zeile auskommentieren (sollte jedoch funktionieren)
+// !!! WICHTIG !!! Falls Let's Encrypt fehlschlägt, diese Zeile auskommentieren (sollte jedoch funktionieren)
 location ~ /\. { deny  all; }
 
 // Zugriff auf diese Verzeichnisse verbieten
@@ -76,7 +76,7 @@ location ^~ /redaxo/cache { deny  all; }
 location ^~ /redaxo/bin { deny  all; }
 
 
-# In einigen Fällen könnte folgende Anweisung zusätlich sinnvoll sein.
+// In einigen Fällen könnte folgende Anweisung zusätlich sinnvoll sein.
 
 location ~ /\.(ttf|eot|woff|woff2)$ {
   add_header Access-Control-Allow-Origin *;

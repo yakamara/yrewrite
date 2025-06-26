@@ -61,6 +61,7 @@ class rex_yrewrite_seo
         $title = rex_escape($this->getTitle());
         $tags['title'] = '<title>'.$title.'</title>';
         $tagsOg['og:title'] = '<meta property="og:title" content="'.$title.'">';
+        $tagsOg['og:type'] = '<meta property="og:type" content="website">';
         $tagsTwitter['twitter:title'] = '<meta name="twitter:title" content="'.$title.'">';
 
         $description = rex_escape($this->getDescription());
@@ -220,7 +221,7 @@ class rex_yrewrite_seo
 
     public function cleanString($str)
     {
-        return str_replace(["\n", "\r"], [' ', ''], $str);
+        return str_replace(["\n", "\r"], [' ', ''], $str ?? '');
     }
 
     // ----- global static functions
@@ -313,10 +314,12 @@ class rex_yrewrite_seo
                           "\n\t".'<lastmod>'.date(DATE_W3C, $article->getUpdateDate()).'</lastmod>'; // Serverzeitzone passt
                         if ($article->getValue(self::$meta_image_field)) {
                             $media = rex_media::get((string) $article->getValue(self::$meta_image_field));
-                            $sitemap_entry .= "\n\t".'<image:image>'.
-                                "\n\t\t".'<image:loc>'.rtrim(rex_yrewrite::getDomainByArticleId($article->getId())->getUrl(), '/').rex_media_manager::getUrl('yrewrite_seo_image', $media->getFileName()).'</image:loc>'.
-                                ($media->getTitle() ? "\n\t\t".'<image:title>'.rex_escape($media->getTitle()).'</image:title>' : '').
-                                "\n\t".'</image:image>';
+                            if ($media) {
+                                $sitemap_entry .= "\n\t".'<image:image>'.
+                                    "\n\t\t".'<image:loc>'.rtrim(rex_yrewrite::getDomainByArticleId($article->getId())->getUrl(), '/').rex_media_manager::getUrl('yrewrite_seo_image', $media->getFileName()).'</image:loc>'.
+                                    ($media->getTitle() ? "\n\t\t".'<image:title>'.rex_escape($media->getTitle()).'</image:title>' : '').
+                                    "\n\t".'</image:image>';
+                            }
                         }
                         $sitemap_entry .= "\n\t".'<changefreq>'.$changefreq.'</changefreq>'.
                           "\n\t".'<priority>'.$priority.'</priority>'.

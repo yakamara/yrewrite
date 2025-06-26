@@ -93,7 +93,7 @@ class rex_yrewrite_path_resolver
 
         // normal exact check
         if ($result = $this->searchPath($domain, $url)) {
-            $structureAddon->setProperty('article_id', $result['article_id']);
+            $structureAddon->setProperty('article_id', (int) $result['article_id']);
             rex_clang::setCurrentId($result['clang_id']);
             return;
         }
@@ -123,7 +123,7 @@ class rex_yrewrite_path_resolver
             }
 
             if (rex_article::get($params['article_id'], $clang)) {
-                $structureAddon->setProperty('article_id', $params['article_id']);
+                $structureAddon->setProperty('article_id', (int) $params['article_id']);
                 rex_clang::setCurrentId($clang);
                 return;
             }

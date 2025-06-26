@@ -1,15 +1,9 @@
 <?php
 
-/**
- * YREWRITE Addon.
- *
- * @author jan.kristinus@yakamara.de
- *
- * @package redaxo\yrewrite
- *
- * @psalm-scope-this rex_addon
- * @var rex_addon $this
- */
+/** @var rex_addon $this */
+
+use FriendsOfRedaxo\Api\RouteCollection;
+use Yakamara\YRewrite\Api\RoutePackage\YRewrite;
 
 if (!rex::isBackend()) {
     $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), DIRECTORY_SEPARATOR) . '/';
@@ -21,6 +15,12 @@ if (!rex::isBackend()) {
 // Additional permissions for url & seo editing
 rex_perm::register('yrewrite[url]', rex_i18n::msg('yrewrite_perm_url_edit'));
 rex_perm::register('yrewrite[seo]', rex_i18n::msg('yrewrite_perm_seo_edit'));
+
+// API AddOn Routes
+if (rex_addon::get('api')->isAvailable()) {
+    // kompletter Namespace
+    RouteCollection::registerRoutePackage(new YRewrite());
+}
 
 rex_extension::register('PACKAGES_INCLUDED', function ($params) {
     rex_yrewrite::init();
@@ -57,19 +57,19 @@ rex_extension::register('PACKAGES_INCLUDED', function ($params) {
 
             $sql = rex_sql::factory();
             $sql->setQuery('SELECT id, domain FROM `' . rex::getTablePrefix() . 'yrewrite_domain` '
-                .'WHERE start_id = :article_id OR mount_id = :article_id OR notfound_id = :article_id', [
+                . 'WHERE start_id = :article_id OR mount_id = :article_id OR notfound_id = :article_id', [
                     'article_id' => $article_id,
                 ]);
 
             // Warnings
             for ($i = 0; $i < $sql->getRows(); ++$i) {
-                $message = '<a href="'. rex_url::backendPage('yrewrite/domains', ['func' => 'edit', 'data_id' => $sql->getValue('id')]) .'">YRewrite '. rex_i18n::msg('yrewrite_domains') .': '. $sql->getValue('domain') .'</a>';
+                $message = '<a href="' . rex_url::backendPage('yrewrite/domains', ['func' => 'edit', 'data_id' => $sql->getValue('id')]) . '">YRewrite ' . rex_i18n::msg('yrewrite_domains') . ': ' . $sql->getValue('domain') . '</a>';
                 $warning[] = $message;
                 $sql->next();
             }
 
             if (count($warning) > 0) {
-                throw new rex_api_exception(rex_i18n::msg('yrewrite_error_article_in_use') .'<ul><li>'. implode('</li><li>', $warning) .'</li></ul>');
+                throw new rex_api_exception(rex_i18n::msg('yrewrite_error_article_in_use') . '<ul><li>' . implode('</li><li>', $warning) . '</li></ul>');
             }
         });
 
@@ -83,8 +83,8 @@ rex_extension::register('PACKAGES_INCLUDED', function ($params) {
             $sql->setQuery('SELECT id, clang_id, name FROM `' . rex::getTablePrefix() . 'article` WHERE yrewrite_image = ?', [$filename]);
 
             for ($i = 0; $i < $sql->getRows(); ++$i) {
-                $message = rex_i18n::msg('yrewrite_seoimage_error_delete') .' <a href="javascript:openPage(\'index.php?page=content/edit&mode=edit&article_id='.
-                    $sql->getValue('id') .'&clang='. $sql->getValue('clang_id') .'\')">'. $sql->getValue('name') .'</a>';
+                $message = rex_i18n::msg('yrewrite_seoimage_error_delete') . ' <a href="javascript:openPage(\'index.php?page=content/edit&mode=edit&article_id=' .
+                    $sql->getValue('id') . '&clang=' . $sql->getValue('clang_id') . '\')">' . $sql->getValue('name') . '</a>';
                 if (!in_array($message, $warning)) {
                     $warning[] = $message;
                 }
@@ -119,7 +119,7 @@ rex_extension::register('PACKAGES_INCLUDED', function ($params) {
                 $panel = include rex_path::addon('yrewrite', 'pages/content.yrewrite_url.php');
 
                 $fragment = new rex_fragment();
-                $fragment->setVar('title', '<i class="rex-icon rex-icon-info"></i> '.rex_i18n::msg('yrewrite_rewriter'), false);
+                $fragment->setVar('title', '<i class="rex-icon rex-icon-info"></i> ' . rex_i18n::msg('yrewrite_rewriter'), false);
                 $fragment->setVar('body', $panel, false);
                 $fragment->setVar('article_id', $params['article_id'], false);
 
@@ -127,7 +127,7 @@ rex_extension::register('PACKAGES_INCLUDED', function ($params) {
                 $fragment->setVar('collapsed', false);
                 $content = $fragment->parse('core/page/section.php');
 
-                return $subject.$content;
+                return $subject . $content;
             });
         }
 
@@ -139,7 +139,7 @@ rex_extension::register('PACKAGES_INCLUDED', function ($params) {
                 $panel = include rex_path::addon('yrewrite', 'pages/content.yrewrite_seo.php');
 
                 $fragment = new rex_fragment();
-                $fragment->setVar('title', '<i class="rex-icon rex-icon-info"></i> '.rex_i18n::msg('yrewrite_rewriter_seo'), false);
+                $fragment->setVar('title', '<i class="rex-icon rex-icon-info"></i> ' . rex_i18n::msg('yrewrite_rewriter_seo'), false);
                 $fragment->setVar('body', $panel, false);
                 $fragment->setVar('article_id', $params['article_id'], false);
                 $fragment->setVar('clang', $params['clang'], false);
@@ -148,7 +148,7 @@ rex_extension::register('PACKAGES_INCLUDED', function ($params) {
                 $fragment->setVar('collapsed', false);
                 $content = $fragment->parse('core/page/section.php');
 
-                return $subject.$content;
+                return $subject . $content;
             });
         }
     }

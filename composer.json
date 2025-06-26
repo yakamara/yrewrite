@@ -10,9 +10,7 @@
         "friendsofredaxo/linter": "^1.4",
         "j13k/yaml-lint": "@dev",
         "redaxo/php-cs-fixer-config": "^2.1.1",
-        "redaxo/psalm-plugin": "^2.0",
-        "redaxo/source": "^5.15.1",
-        "vimeo/psalm": "^5.9.0",
+        "redaxo/source": "^5.18.3",
         "yakamara/redaxo_yform": "dev-master"
     },
 

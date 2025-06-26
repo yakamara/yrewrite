@@ -1,6 +1,26 @@
 Changelog
 =========
 
+Version 2.11.0 – 21.03.2025
+---------------------------
+
+### Neu
+
+* Anbindung an API AddOn um Seo Daten (im Moment Titel und Description) lesen und schreiben zu können (@dergel)
+* FileType .mjs in htaccess ergänzt (@skerbis)
+* nonce für CSP ergänzt (@dergel)
+
+### Bugs
+
+* Wenn ein Media nicht vorhanden war, konnte ein Whoops in der Sitemap entstehen (@dergel/ @tbaddade)
+* str_replace deprecated aufruf korrigiert (@MC-PMOE)
+* Wenn htaccess nicht geschrieben werden konnte, gab es keine Fehler (@Koala)
+* HTTP_AUTHORIZATION Header wird nun auch beachtet (@dergel)
+* Fehlerhafter clang aufruf korrigiert (@tyrant88)
+* Readme angepasst (@marcohanke)
+* Fehlerhafte clang aufrufe korrigiert (@tbaddade)
+
+
 Version 2.10.0 – 31.03.2023
 ---------------------------
 

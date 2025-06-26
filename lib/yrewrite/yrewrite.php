@@ -219,7 +219,7 @@ class rex_yrewrite
     {
         if (rex::isFrontend() && 'get' === rex_request_method() && !rex_get('rex-api-call') && $articleId = rex_get('article_id', 'int')) {
             $params = $_GET;
-            $article = rex_article::get((int) $params['article_id'], (int) $params['clang']);
+            $article = rex_article::get((int) $params['article_id'], (int) ($params['clang'] ?? 0) ?: rex_clang::getCurrentId());
             if ($article instanceof rex_article) {
                 unset($params['article_id']);
                 unset($params['clang']);
@@ -554,7 +554,7 @@ class rex_yrewrite
 
     public static function copyHtaccess()
     {
-        rex_file::copy(rex_path::addon('yrewrite', 'setup/.htaccess'), rex_path::frontend('.htaccess'));
+        return rex_file::copy(rex_path::addon('yrewrite', 'setup/.htaccess'), rex_path::frontend('.htaccess'));
     }
 
     public static function isHttps()

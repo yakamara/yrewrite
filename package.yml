@@ -1,5 +1,5 @@
 package: yrewrite
-version: '2.10.0'
+version: '2.11.0'
 author: Jan Kristinus, Gregor Harlan
 supportpage: https://github.com/yakamara/redaxo_yrewrite
 docspage: https://github.com/yakamara/redaxo_yrewrite/edit/main/README.md

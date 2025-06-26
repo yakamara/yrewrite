@@ -91,6 +91,10 @@ AddDefaultCharset utf-8
     RewriteCond %{REQUEST_URI}::$1 ^(/.+)/(.*)::\2$
     RewriteRule ^(.*) - [E=BASE:%1]
 
+    # Sets the HTTP_AUTHORIZATION header removed by Apache
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
     # SEO
     # example.org/sitemap.xml will be generated adhoc by YRewrite
     # example.org/robots.txt will be generated adhoc by YRewrite
