@@ -44,7 +44,7 @@ class rex_yrewrite_domain
         $this->notfoundId = $notfoundId;
         $this->clangs = null === $clangs ? rex_clang::getAllIds() : $clangs;
         $this->startClang = $startClang;
-        $this->startClangAuto = $startClangAuto;
+        $this->startClangAuto = $startClangAuto && !$startClangHidden;
         $this->startClangHidden = $startClangHidden;
         $this->title = $title;
         $this->description = $description;

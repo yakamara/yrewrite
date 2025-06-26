@@ -18,9 +18,9 @@ page:
 requires:
     php:
         version: '>=8.1'
-    redaxo: '^5.13'
+    redaxo: '^5.15'
     packages:
         media_manager: '^2.12'
         mediapool: '^2.11'
         structure: '^2.7.0'
-        yform: '>=3.2,<5.0.0-dev'
+        yform: '>=3.2,<6.0.0-dev'

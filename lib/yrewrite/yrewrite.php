@@ -219,7 +219,7 @@ class rex_yrewrite
     {
         if (rex::isFrontend() && 'get' === rex_request_method() && !rex_get('rex-api-call') && $articleId = rex_get('article_id', 'int')) {
             $params = $_GET;
-            $article = rex_article::get((int) $params['article_id'], (int) $params['clang'] ?: rex_clang::getCurrentId());
+            $article = rex_article::get((int) $params['article_id'], (int) ($params['clang'] ?? 0) ?: rex_clang::getCurrentId());
             if ($article instanceof rex_article) {
                 unset($params['article_id']);
                 unset($params['clang']);
@@ -586,8 +586,8 @@ class rex_yrewrite
 
     public static function getHost()
     {
-        if (isset($_SERVER['HTTP_X_FORWARDED_SERVER'])) {
-            return $_SERVER['HTTP_X_FORWARDED_SERVER'];
+        if (isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
+            return $_SERVER['HTTP_X_FORWARDED_HOST'];
         }
         return @$_SERVER['HTTP_HOST'];
     }
