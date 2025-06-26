@@ -139,7 +139,7 @@ if ($isStartarticle) {
 
     echo '
 
-<script type="text/javascript">
+<script type="text/javascript" nonce="' . rex_response::getNonce() . '">
 
 jQuery(document).ready(function() {
     var $type = $("#yform-yrewrite-url-yrewrite_url_type");
