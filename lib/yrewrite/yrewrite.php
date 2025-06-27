@@ -554,6 +554,9 @@ class rex_yrewrite
 
     public static function copyHtaccess()
     {
+        if(file_exists(rex_path::frontend('.htaccess'))) {
+            rex_file::copy(rex_path::frontend('.htaccess'), rex_addon::get('yrewrite')->getDataPath('.htaccess-backup-' . date('Y-m-d-H-i-s')) );
+        }
         return rex_file::copy(rex_path::addon('yrewrite', 'setup/.htaccess'), rex_path::frontend('.htaccess'));
     }
 
