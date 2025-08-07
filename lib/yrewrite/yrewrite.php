@@ -257,7 +257,7 @@ class rex_yrewrite
         $id = $params['id'];
         $clang = $params['clang'];
 
-        foreach (self::$paths['redirections'] as $domain => $redirections) {
+        foreach (self::$paths['redirections'] ?? [] as $domain => $redirections) {
             if (isset($redirections[$id][$clang]['url'])) {
                 return $redirections[$id][$clang]['url'];
             }
@@ -282,7 +282,7 @@ class rex_yrewrite
         }
 
         if ('' == $path) {
-            foreach ((array) self::$paths['paths'] as $i_domain => $i_id) {
+            foreach ((array) self::$paths['paths'] ?? [] as $i_domain => $i_id) {
                 if (isset(self::$paths['paths'][$i_domain][$id][$clang])) {
                     $domain = self::getDomainByName($i_domain);
                     $path = 'default' === $domain->getName() ? $domain->getPath() : $domain->getUrl();
