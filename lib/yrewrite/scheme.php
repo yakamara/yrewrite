@@ -111,13 +111,20 @@ class rex_yrewrite_scheme
      */
     public function normalize($string, $clang = 1)
     {
+        // do nothing if empty
+        if (null === $string || '' === $string) {
+            return '';
+        }
+
+        // deal with unicode urls
         if (rex_addon::get('yrewrite')->getConfig('unicode_urls')) {
             $string = str_replace(["'", '’', 'ʻ'], '', $string);
             $string = preg_replace('/[^\p{L&}\p{Lo}\p{M}\p{N}\p{Sc}]+/u', '-', $string);
             $string = mb_strtolower(trim($string, '-'));
             return $string;
         }
-
+        
+        // normalize
         $string = str_replace(
             ['Ä',  'Ö',  'Ü',  'ä',  'ö',  'ü',  'ß',  'À', 'à', 'Á', 'á', 'ç', 'È', 'è', 'É', 'é', 'ë', 'Ì', 'ì', 'Í', 'í', 'Ï', 'ï', 'Ò', 'ò', 'Ó', 'ó', 'ô', 'Ù', 'ù', 'Ú', 'ú', 'Č', 'č', 'Ł', 'ł', 'ž', '/', '®', '©', '™'],
             ['Ae', 'Oe', 'Ue', 'ae', 'oe', 'ue', 'ss', 'A', 'a', 'A', 'a', 'c', 'E', 'e', 'E', 'e', 'e', 'I', 'i', 'I', 'i', 'I', 'i', 'O', 'o', 'O', 'o', 'o', 'U', 'u', 'U', 'u', 'C', 'c', 'L', 'l', 'z', '-', '',  '',  ''],
