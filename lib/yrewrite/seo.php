@@ -287,27 +287,6 @@ class rex_yrewrite_seo
                         (1 == $index || ($article->isOnline() && 0 == $index)) &&
                         ($article_id != $domain->getNotfoundId() || $article_id == $domain->getStartId())
                     ) {
-                        $changefreq = $article->getValue(self::$meta_changefreq_field);
-                        if (!in_array($changefreq, self::$changefreq)) {
-                            $changefreq = self::$changefreq_default;
-                        }
-
-                        $priority = $article->getValue(self::$meta_priority_field);
-
-                        if (!in_array($priority, self::$priority)) {
-                            $article_paths = count($article->getParentTree());
-                            $prio = $article_paths - $paths - 1;
-                            if ($prio < 0) {
-                                $prio = 0;
-                            }
-
-                            if (isset(self::$priority[$prio])) {
-                                $priority = self::$priority[$prio];
-                            } else {
-                                $priority = self::$priority_default;
-                            }
-                        }
-
                         $sitemap_entry =
                           "\n".'<url>'.
                           "\n\t".'<loc>'.rex_yrewrite::getFullPath($path[$clang_id]).'</loc>'.
@@ -321,9 +300,7 @@ class rex_yrewrite_seo
                                     "\n\t".'</image:image>';
                             }
                         }
-                        $sitemap_entry .= "\n\t".'<changefreq>'.$changefreq.'</changefreq>'.
-                          "\n\t".'<priority>'.$priority.'</priority>'.
-                          "\n".'</url>';
+                        $sitemap_entry .= "\n".'</url>';
                         $sitemap[] = $sitemap_entry;
                     }
                 }
