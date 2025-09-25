@@ -265,6 +265,7 @@ class rex_yrewrite
             if (isset($redirections[$id][$clang])) {
                 $params['id'] = $redirections[$id][$clang]['id'];
                 $params['clang'] = $redirections[$id][$clang]['clang'];
+                $params['hash'] = $redirections[$id][$clang]['hash'];
                 return self::rewrite($params, $yparams, $fullpath);
             }
         }
@@ -298,7 +299,7 @@ class rex_yrewrite
             $urlparams = rex_string::buildQuery($params['params'], $params['separator']);
         }
 
-        return $path . ($urlparams ? '?' . $urlparams : '');
+        return $path . ($urlparams ? '?' . $urlparams : '') . (isset($params['hash']) ? '#' . $params['hash'] : '');
     }
 
     public static function rewriteMedia(array $params)
