@@ -44,7 +44,7 @@ if ('' != $func) {
     $yform->setValidateField('size_range', ['url', 1, 255, $this->i18n('warning_nottolong')]);
     $yform->setValidateField('empty', ['url', $this->i18n('forward_enter_url')]);
     $yform->setValidateField('unique', ['domain_id,url', $this->i18n('forward_domainurl_already_defined')]);
-    $yform->setValueField('choice', ['movetype', $this->i18n('forward_move_method'), $this->i18n('forward_301').'=301,'.$this->i18n('forward_302').'=302,'.$this->i18n('forward_303').'=303,'.$this->i18n('forward_307').'=307', '', '', '303']);
+    $yform->setValueField('choice', ['movetype', $this->i18n('forward_move_method'), $this->i18n('forward_301').'=301,'.$this->i18n('forward_302').'=302,'.$this->i18n('forward_303').'=303,'.$this->i18n('forward_307').'=307', '', '', '301']);
     $yform->setValueField('choice', ['type', $this->i18n('forward_type'), $this->i18n('forward_type_article').'=article,'.$this->i18n('forward_type_extern').'=extern,'.$this->i18n('forward_type_media').'=media']);
 
     $yform->setValueField('html', ['', '<div id="rex-yrewrite-forward-article">']);

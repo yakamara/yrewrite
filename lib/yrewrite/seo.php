@@ -174,7 +174,7 @@ class rex_yrewrite_seo
 
     public function getCanonicalUrl()
     {
-        $canonical_url = trim($this->article->getValue(self::$meta_canonical_url_field));
+        $canonical_url = trim($this->article->getValue(self::$meta_canonical_url_field) ?? '');
         if ('' == $canonical_url) {
             $canonical_url = rex_yrewrite::getFullUrlByArticleId($this->article->getId(), $this->article->getClangId());
         }
