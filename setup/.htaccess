@@ -68,8 +68,8 @@ AddDefaultCharset utf-8
 #	ExpiresByType application/x-shockwave-flash "access plus 1 year"
 #	ExpiresByType application/vnd.ms-fontobject "access plus 1 year"
 #	ExpiresByType application/x-font-ttf "access plus 1 year"
-#	ExpiresByType font/font-woff "access plus 1 year"
-#	ExpiresByType font/font-woff2 "access plus 1 year"
+#	ExpiresByType font/woff "access plus 1 year"
+#	ExpiresByType font/woff2 "access plus 1 year"
 #	ExpiresByType font/opentype "access plus 1 year"
 #</IfModule>
 
