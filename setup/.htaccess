@@ -56,7 +56,7 @@ AddDefaultCharset utf-8
 #	ExpiresByType image/png "access plus 1 year"
 #	ExpiresByType image/jpg "access plus 1 year"
 #	ExpiresByType image/jpeg "access plus 1 year"
-#	ExpiresByType image/x-icon "access plus 1 year"
+#	ExpiresByType image/vnd.microsoft.icon "access plus 1 year"
 #	ExpiresByType image/svg+xml "access plus 1 year"
 #	ExpiresByType video/mp4 "access plus 1 year"
 #	ExpiresByType video/ogg "access plus 1 year"
