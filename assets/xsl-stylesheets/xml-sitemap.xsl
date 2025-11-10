@@ -81,11 +81,9 @@
                     <table id="sitemap" cellpadding="3">
                         <thead>
                             <tr>
-                                <th width="70%">URL</th>
-                                <th width="5%">Priority</th>
+                                <th width="80%">URL</th>
                                 <th width="5%">Images</th>
                                 <th width="5%">Videos</th>
-                                <th width="5%">Change Freq.</th>
                                 <th width="10%">Last Change</th>
                             </tr>
                         </thead>
@@ -103,16 +101,10 @@
                                         </a>
                                     </td>
                                     <td>
-                                        <xsl:value-of select="concat(sitemap:priority*100,'%')"/>
-                                    </td>
-                                    <td>
                                         <xsl:value-of select="count(image:image)"/>
                                     </td>
                                     <td>
                                         <xsl:value-of select="count(video:video)"/>
-                                    </td>
-                                    <td>
-                                        <xsl:value-of select="concat(translate(substring(sitemap:changefreq, 1, 1),concat($lower, $upper),concat($upper, $lower)),substring(sitemap:changefreq, 2))"/>
                                     </td>
                                     <td>
                                         <xsl:value-of select="concat(substring(sitemap:lastmod,0,11),concat(' ', substring(sitemap:lastmod,12,5)))"/>
