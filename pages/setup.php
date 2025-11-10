@@ -32,7 +32,7 @@ $content = '
 
             <h3>' . $this->i18n('htaccess_set') . '</h3>
             <p>' . rex_i18n::rawMsg('yrewrite_htaccess_info') . '</p>
-            <p><a class="btn btn-primary" href="'.rex_url::currentBackendPage(['func' => 'htaccess'] + $csrf->getUrlParams()).'">' . $this->i18n('yrewrite_htaccess_set') . '</a></p>
+            <p><a class="btn btn-primary yrewrite-copy-htaccess" data-yrewrite-confirm-msg="' . $this->i18n('htaccess_copy_confirm') . '" href="'.rex_url::currentBackendPage(['func' => 'htaccess'] + $csrf->getUrlParams()).'">' . $this->i18n('yrewrite_htaccess_set') . '</a></p>
 
             <h3>' . $this->i18n('info_headline') . '</h3>
             <p>' . rex_i18n::rawMsg('yrewrite_info_text') . '</p>

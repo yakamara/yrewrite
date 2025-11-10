@@ -12,7 +12,7 @@ page:
         domains: { title: 'translate:domains', perm: admin }
         alias_domains: { title: 'translate:alias_domains', perm: admin }
         forward: { title: 'translate:forward', perm: 'yrewrite[forward]' }
-        setup: { title: 'translate:setup', perm: admin }
+        setup: { title: 'translate:setup', perm: admin, pjax: false }
         docs: { title: 'translate:docs', icon: rex-icon fa-info-circle, itemClass: pull-right }
 
 requires:

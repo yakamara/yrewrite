@@ -10,6 +10,7 @@ if (!rex::isBackend()) {
     rex_url::init(new rex_path_default_provider($path, 'redaxo', false));
 } elseif (rex::getUser()) {
     rex_view::addCssFile($this->getAssetsUrl('yrewrite.css'));
+    rex_view::addJsFile($this->getAssetsUrl('yrewrite-backend.js'));
 }
 
 // Additional permissions for url & seo editing
