@@ -107,9 +107,25 @@ class rex_yrewrite
      */
     public static function getDomainByName($name)
     {
+        // Try exact match first (for backward compatibility)
         if (isset(self::$domainsByName[$name])) {
             return self::$domainsByName[$name];
         }
+
+        // Normalize search string: remove protocol and trailing slash
+        $normalizedName = preg_replace('#^https?://#', '', $name);
+        $normalizedName = rtrim($normalizedName, '/');
+
+        // Search through all domains with normalized comparison
+        foreach (self::$domainsByName as $storedName => $domain) {
+            $normalizedStoredName = preg_replace('#^https?://#', '', $storedName);
+            $normalizedStoredName = rtrim($normalizedStoredName, '/');
+
+            if ($normalizedName === $normalizedStoredName) {
+                return $domain;
+            }
+        }
+
         return null;
     }
 
