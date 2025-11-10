@@ -121,7 +121,7 @@ class rex_yrewrite_path_generator
     }
 
     /**
-     * Make URL unique by appending a suffix if it already exists
+     * Make URL unique by appending a suffix if it already exists.
      *
      * @param string $url The proposed URL
      * @param string $domainName The domain name
@@ -177,7 +177,7 @@ class rex_yrewrite_path_generator
                 }
             }
 
-            $suffix++;
+            ++$suffix;
         }
 
         return $url;
