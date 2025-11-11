@@ -311,7 +311,7 @@ class rex_yrewrite
                 $params['hash'] = $hashFragment;
             }
         }
-        
+
         return $path . ($urlparams ? '?' . $urlparams : '') . (isset($params['hash']) ? '#' . $params['hash'] : '');
     }
 
