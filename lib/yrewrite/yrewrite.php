@@ -299,6 +299,19 @@ class rex_yrewrite
             $urlparams = rex_string::buildQuery($params['params'], $params['separator']);
         }
 
+        // check if we already have a hash in $path
+        $hashFragment = parse_url($path, PHP_URL_FRAGMENT);
+        if ($hashFragment) {
+            if (isset($params['hash'])) {
+                // override hash from params
+                $path = str_replace('#' . $hashFragment, '#' . $params['hash'], $path);
+            } else {
+                // use hash from path
+                $path = str_replace('#' . $hashFragment, '', $path);
+                $params['hash'] = $hashFragment;
+            }
+        }
+        
         return $path . ($urlparams ? '?' . $urlparams : '') . (isset($params['hash']) ? '#' . $params['hash'] : '');
     }
 
