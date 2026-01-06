@@ -8,7 +8,7 @@ class rex_yrewrite_path_generator
     /** @var rex_yrewrite_scheme */
     private $scheme;
 
-    /** @var array<array<rex_yrewrite_domain>> */
+    /** @var array<int, array<int, rex_yrewrite_domain>> */
     private $domains;
 
     /** @var array<string, array<int, array<int, string>>> */
