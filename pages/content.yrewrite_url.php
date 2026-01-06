@@ -36,7 +36,7 @@ if ($isStartarticle) {
 
     $yform->setObjectparams('main_table', rex::getTable('article'));
     $yform->setObjectparams('main_id', $article_id);
-    $yform->setObjectparams('main_where', 'id='.$article_id.' and clang_id='.$clang);
+    $yform->setObjectparams('main_where', 'id=' . $article_id . ' and clang_id=' . $clang);
     $yform->setObjectparams('getdata', true);
 
     $sql = rex_sql::factory();
@@ -45,8 +45,8 @@ if ($isStartarticle) {
            *,
            IF(yrewrite_url_type = "REDIRECTION_INTERNAL", yrewrite_redirection, "") AS yrewrite_redirection_internal,
            IF(yrewrite_url_type = "REDIRECTION_EXTERNAL", yrewrite_redirection, "") AS yrewrite_redirection_external
-        FROM '.rex::getTable('article').'
-        WHERE id='.$article_id.' and clang_id='.$clang,
+        FROM ' . rex::getTable('article') . '
+        WHERE id=' . $article_id . ' and clang_id=' . $clang,
     );
     $yform->setObjectparams('sql_object', $sql);
 
@@ -110,7 +110,7 @@ if ($isStartarticle) {
         return $return;
     }, 'params' => ['article_id' => $article_id, 'domain' => $domain, 'clang' => $clang], 'message' => rex_i18n::msg('yrewrite_warning_urlexists')]);
 
-    $yform->setActionField('db', [rex::getTable('article'), 'id=' . $article_id.' and clang_id='.$clang]);
+    $yform->setActionField('db', [rex::getTable('article'), 'id=' . $article_id . ' and clang_id=' . $clang]);
     $yform->setObjectparams('submit_btn_label', $addon->i18n('update'));
     $form = $yform->getForm();
 
@@ -166,8 +166,8 @@ jQuery(document).ready(function() {
         $autoPreview.toggle("auto" === current);
     }).change();
 
-    var base = "'.('default' == $domain->getName() ? '&lt;default&gt;/' : $domain->getUrl()).'";
-    var autoUrl = "'.$autoUrl.'";
+    var base = "' . ('default' == $domain->getName() ? '&lt;default&gt;/' : $domain->getUrl()) . '";
+    var autoUrl = "' . $autoUrl . '";
 
     var updateUrl = function ($element, url) {
         $element.html(base + url).addClass("dont-break-out");
@@ -196,7 +196,7 @@ jQuery(document).ready(function() {
 }
 
 $form = ob_get_contents();
-$content = '<section id="rex-page-sidebar-yrewrite-url" data-pjax-container="#rex-page-sidebar-yrewrite-url" data-pjax-no-history="1">'.$form.'</section>';
+$content = '<section id="rex-page-sidebar-yrewrite-url" data-pjax-container="#rex-page-sidebar-yrewrite-url" data-pjax-no-history="1">' . $form . '</section>';
 ob_end_clean();
 
 return $content;

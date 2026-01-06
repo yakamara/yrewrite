@@ -81,7 +81,7 @@ class rex_yrewrite_forward
         }
 
         if ('' != $forward_url) {
-            header('HTTP/1.1 '.self::$movetypes[$p['movetype']]);
+            header('HTTP/1.1 ' . self::$movetypes[$p['movetype']]);
             header('Location: ' . $forward_url);
             exit;
         }
@@ -103,7 +103,7 @@ class rex_yrewrite_forward
     public static function generatePathFile(): void
     {
         $gc = rex_sql::factory();
-        $content = $gc->getArray('select * from '.rex::getTable('yrewrite_forward'));
+        $content = $gc->getArray('select * from ' . rex::getTable('yrewrite_forward'));
 
         foreach ($content as &$row) {
             $url = explode('?', (string) $row['url'], 2);

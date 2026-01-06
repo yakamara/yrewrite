@@ -94,7 +94,7 @@ class rex_yrewrite
     }
 
     /**
-     * @return rex_yrewrite_domain[]
+     * @return array<rex_yrewrite_domain>
      */
     public static function getDomains()
     {
@@ -103,7 +103,7 @@ class rex_yrewrite
 
     /**
      * @param string $name
-     * @return null|rex_yrewrite_domain
+     * @return rex_yrewrite_domain|null
      */
     public static function getDomainByName($name)
     {
@@ -115,7 +115,7 @@ class rex_yrewrite
 
     /**
      * @param int $id
-     * @return null|rex_yrewrite_domain
+     * @return rex_yrewrite_domain|null
      */
     public static function getDomainById($id)
     {
@@ -305,10 +305,10 @@ class rex_yrewrite
     {
         $buster = '';
         if (isset($params['buster']) && $params['buster']) {
-            $buster = '?buster='.$params['buster'];
+            $buster = '?buster=' . $params['buster'];
         }
 
-        return rex_url::frontend('media/'.$params['type'].'/'.$params['file'].$buster);
+        return rex_url::frontend('media/' . $params['type'] . '/' . $params['file'] . $buster);
     }
 
     /*
@@ -478,7 +478,7 @@ class rex_yrewrite
 
         $gc = rex_sql::factory();
 
-        $domains = $gc->getArray('select * from '.rex::getTable('yrewrite_domain').' order by mount_id, clangs');
+        $domains = $gc->getArray('select * from ' . rex::getTable('yrewrite_domain') . ' order by mount_id, clangs');
         foreach ($domains as $domain) {
             if (!$domain['domain']) {
                 continue;
@@ -486,12 +486,12 @@ class rex_yrewrite
 
             $name = (string) $domain['domain'];
             if (!str_contains($name, '//')) {
-                $name = '//'.$name;
+                $name = '//' . $name;
             }
             $parts = parse_url($name);
             $name = $parts['host'];
             if (isset($parts['port'])) {
-                $name .= ':'.$parts['port'];
+                $name .= ':' . $parts['port'];
             }
             $path = '/';
             if (isset($parts['path'])) {
@@ -501,7 +501,7 @@ class rex_yrewrite
             if ($domain['start_id'] > 0 && $domain['notfound_id'] > 0) {
                 $content .= "\n" . 'rex_yrewrite::addDomain(new rex_yrewrite_domain('
                     . '"' . $name . '", '
-                    . (isset($parts['scheme']) ? '"'.$parts['scheme'].'"' : 'null') . ', '
+                    . (isset($parts['scheme']) ? '"' . $parts['scheme'] . '"' : 'null') . ', '
                     . '"' . $path . '", '
                     . $domain['mount_id'] . ', '
                     . $domain['start_id'] . ', '
@@ -520,7 +520,7 @@ class rex_yrewrite
             }
         }
 
-        $domains = $gc->getArray('select * from '.rex::getTable('yrewrite_alias').' order by domain_id');
+        $domains = $gc->getArray('select * from ' . rex::getTable('yrewrite_alias') . ' order by domain_id');
         foreach ($domains as $domain) {
             if (!$domain['alias_domain'] || !$domain['domain_id']) {
                 continue;
