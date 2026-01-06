@@ -196,3 +196,4 @@ yrewrite_settings_saved = Einstellungen gespeichert
 yrewrite_unicode_urls = Unicode-Zeichen in URLs erlauben (Umlaute, chinesische/kyrillische Zeichen etc.)
 yrewrite_hide_url_block = URL-Block verbergen
 yrewrite_hide_seo_block = SEO-Block verbergen
+yrewrite_allow_article_ids = Aufruf von article_id erlauben (Bsp. 1,2,3)

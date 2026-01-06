@@ -30,6 +30,7 @@ class rex_yrewrite_settings
             $addon->setConfig('unicode_urls', rex_post('yrewrite_unicode_urls', 'bool'));
             $addon->setConfig('yrewrite_hide_url_block', rex_post('yrewrite_hide_url_block', 'bool'));
             $addon->setConfig('yrewrite_hide_seo_block', rex_post('yrewrite_hide_seo_block', 'bool'));
+            $addon->setConfig('yrewrite_allow_article_ids', rex_post('yrewrite_allow_article_ids', 'string'));
 
             rex_yrewrite::deleteCache();
 
@@ -45,6 +46,8 @@ class rex_yrewrite_settings
     public static function getForm()
     {
         $addon = self::getAddon();
+
+        $formElements = [];
 
         // Checkboxes
         $checkbox_elements = [
@@ -64,7 +67,27 @@ class rex_yrewrite_settings
 
         $fragment = new rex_fragment();
         $fragment->setVar('elements', $checkbox_elements, false);
-        $checkboxes = $fragment->parse('core/form/checkbox.php');
+        $content = $fragment->parse('core/form/checkbox.php');
+
+        // Input Fields
+        $inputGroups = [];
+        $n = [];
+        $n['field'] = '<input class="form-control" type="text" id="yrewrite_allow_article_ids" name="yrewrite_allow_article_ids" value="' . $addon->getConfig('yrewrite_allow_article_ids') . '" />';
+        $n['left'] = $addon->i18n('yrewrite_allow_article_ids');
+        $inputGroups[] = $n;
+
+        $fragment = new rex_fragment();
+        $fragment->setVar('elements', $inputGroups, false);
+        $inputGroup = $fragment->parse('core/form/input_group.php');
+
+        $n = [];
+        $n['label'] = '';
+        $n['field'] = $inputGroup;
+        $formElements[] = $n;
+
+        $fragment = new rex_fragment();
+        $fragment->setVar('elements', $formElements, false);
+        $content .= $fragment->parse('core/form/form.php');
 
         // Submit
         $submit_elements = [
@@ -80,7 +103,7 @@ class rex_yrewrite_settings
         $fragment = new rex_fragment();
         $fragment->setVar('class', 'edit');
         $fragment->setVar('title', $addon->i18n('yrewrite_settings'));
-        $fragment->setVar('body', $checkboxes, false);
+        $fragment->setVar('body', $content, false);
         $fragment->setVar('buttons', $submit, false);
 
         return '
@@ -105,6 +128,9 @@ class rex_yrewrite_settings
         }
         if (!$addon->hasConfig('yrewrite_hide_url_block')) {
             $addon->setConfig('yrewrite_hide_url_block', false);
+        }
+        if (!$addon->hasConfig('yrewrite_allow_article_ids')) {
+            $addon->setConfig('yrewrite_allow_article_ids', '');
         }
     }
 }

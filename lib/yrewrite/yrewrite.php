@@ -217,7 +217,12 @@ class rex_yrewrite
 
     public static function prepare()
     {
-        if (rex::isFrontend() && 'get' === rex_request_method() && !rex_get('rex-api-call') && $articleId = rex_get('article_id', 'int')) {
+        if (rex::isFrontend() && 'get' === rex_request_method() && !rex_get('rex-api-call') && $articleId = rex_get('article_id', 'int'))
+        {
+            if (self::allowArticleId($articleId)) {
+                return true;
+            }
+
             $params = $_GET;
             $article = rex_article::get((int) $params['article_id'], (int) ($params['clang'] ?? 0) ?: rex_clang::getCurrentId());
             if ($article instanceof rex_article) {
@@ -597,5 +602,16 @@ class rex_yrewrite
         }
 
         return rtrim($path, DIRECTORY_SEPARATOR) . '/';
+    }
+
+    protected static function allowArticleId($articleId)
+    {
+        $ids = explode(',', rex_addon::get('yrewrite')->getConfig('yrewrite_allow_article_ids'));
+
+        if (in_array($articleId, $ids)) {
+            return true;
+        }
+
+        return false;
     }
 }

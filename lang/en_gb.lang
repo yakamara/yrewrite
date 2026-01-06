@@ -194,3 +194,4 @@ yrewrite_settings_saved = Settings updated
 yrewrite_unicode_urls = Allow unicode chars in URLs (umlauts, chinese/cyrillic characters etc.)
 yrewrite_hide_url_block = Hide URL-Block
 yrewrite_hide_seo_block = Hide SEO-Block
+yrewrite_allow_article_ids = Allow article_id parameter (1,2,3)
