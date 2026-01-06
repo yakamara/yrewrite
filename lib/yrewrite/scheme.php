@@ -89,7 +89,7 @@ class rex_yrewrite_scheme
 
     /**
      * @param string $path
-     * @return null|string|string[]
+     * @return string|array<string>|null
      */
     public function getAlternativeCandidates($path, rex_yrewrite_domain $domain)
     {

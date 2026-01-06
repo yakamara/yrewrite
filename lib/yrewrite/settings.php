@@ -49,16 +49,16 @@ class rex_yrewrite_settings
         // Checkboxes
         $checkbox_elements = [
             [
-                'label' => '<label for="yrewrite-unicode-urls">'.$addon->i18n('yrewrite_unicode_urls').'</label>',
-                'field' => '<input type="checkbox" id="yrewrite-unicode-urls" name="yrewrite_unicode_urls" value="1" '.($addon->getConfig('unicode_urls') ? ' checked="checked"' : '').' />',
+                'label' => '<label for="yrewrite-unicode-urls">' . $addon->i18n('yrewrite_unicode_urls') . '</label>',
+                'field' => '<input type="checkbox" id="yrewrite-unicode-urls" name="yrewrite_unicode_urls" value="1" ' . ($addon->getConfig('unicode_urls') ? ' checked="checked"' : '') . ' />',
             ],
             [
-                'label' => '<label for="yrewrite-hide-url-block">'.$addon->i18n('yrewrite_hide_url_block').'</label>',
-                'field' => '<input type="checkbox" id="yrewrite-hide-url-block" name="yrewrite_hide_url_block" value="1" '.($addon->getConfig('yrewrite_hide_url_block') ? ' checked="checked"' : '').' />',
+                'label' => '<label for="yrewrite-hide-url-block">' . $addon->i18n('yrewrite_hide_url_block') . '</label>',
+                'field' => '<input type="checkbox" id="yrewrite-hide-url-block" name="yrewrite_hide_url_block" value="1" ' . ($addon->getConfig('yrewrite_hide_url_block') ? ' checked="checked"' : '') . ' />',
             ],
             [
-                'label' => '<label for="yrewrite-hide-seo-block">'.$addon->i18n('yrewrite_hide_seo_block').'</label>',
-                'field' => '<input type="checkbox" id="yrewrite-hide-seo-block" name="yrewrite_hide_seo_block" value="1" '.($addon->getConfig('yrewrite_hide_seo_block') ? ' checked="checked"' : '').' />',
+                'label' => '<label for="yrewrite-hide-seo-block">' . $addon->i18n('yrewrite_hide_seo_block') . '</label>',
+                'field' => '<input type="checkbox" id="yrewrite-hide-seo-block" name="yrewrite_hide_seo_block" value="1" ' . ($addon->getConfig('yrewrite_hide_seo_block') ? ' checked="checked"' : '') . ' />',
             ],
         ];
 
@@ -68,7 +68,7 @@ class rex_yrewrite_settings
 
         // Submit
         $submit_elements = [
-            ['field' => '<button class="btn btn-save rex-form-aligned" type="submit" name="submit" value="1" '.rex::getAccesskey($addon->i18n('submit'), 'save').'>'.$addon->i18n('save').'</button>'],
+            ['field' => '<button class="btn btn-save rex-form-aligned" type="submit" name="submit" value="1" ' . rex::getAccesskey($addon->i18n('submit'), 'save') . '>' . $addon->i18n('save') . '</button>'],
         ];
 
         $fragment = new rex_fragment();
@@ -84,8 +84,8 @@ class rex_yrewrite_settings
         $fragment->setVar('buttons', $submit, false);
 
         return '
-            <form action="'.rex_url::currentBackendPage().'" method="post">
-                '.$fragment->parse('core/page/section.php').'
+            <form action="' . rex_url::currentBackendPage() . '" method="post">
+                ' . $fragment->parse('core/page/section.php') . '
             </form>
         ';
     }

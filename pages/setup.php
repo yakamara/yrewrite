@@ -32,7 +32,7 @@ $content = '
 
             <h3>' . $this->i18n('htaccess_set') . '</h3>
             <p>' . rex_i18n::rawMsg('yrewrite_htaccess_info') . '</p>
-            <p><a class="btn btn-primary" href="'.rex_url::currentBackendPage(['func' => 'htaccess'] + $csrf->getUrlParams()).'">' . $this->i18n('yrewrite_htaccess_set') . '</a></p>
+            <p><a class="btn btn-primary" href="' . rex_url::currentBackendPage(['func' => 'htaccess'] + $csrf->getUrlParams()) . '">' . $this->i18n('yrewrite_htaccess_set') . '</a></p>
 
             <h3>' . $this->i18n('info_headline') . '</h3>
             <p>' . rex_i18n::rawMsg('yrewrite_info_text') . '</p>
@@ -45,12 +45,12 @@ $content = '
             <h3>' . $this->i18n('info_seo') . '</h3>
             <p>' . rex_i18n::rawMsg('yrewrite_info_seo_text') . '
 
-            <br /><br />'.highlight_string(<<<'PHP'
+            <br /><br />' . highlight_string(<<<'PHP'
     <?php
         $seo = new rex_yrewrite_seo();
         echo $seo->getTags();
     ?>
-    PHP, true).'
+    PHP, true) . '
             </p>
             ';
 
@@ -69,14 +69,14 @@ $domains = [];
 
 foreach (rex_yrewrite::getDomains() as $name => $domain) {
     if ('default' != $name) {
-        $domains[] = '<tr><td><a target="_blank" href="'.$domain->getUrl().'">'.htmlspecialchars($name).'</a></td><td><a target="_blank" href="'.$domain->getUrl().'sitemap.xml">sitemap.xml</a></td><td><a target="_blank" href="'.$domain->getUrl().'robots.txt">robots.txt</a></td></tr>';
+        $domains[] = '<tr><td><a target="_blank" href="' . $domain->getUrl() . '">' . htmlspecialchars($name) . '</a></td><td><a target="_blank" href="' . $domain->getUrl() . 'sitemap.xml">sitemap.xml</a></td><td><a target="_blank" href="' . $domain->getUrl() . 'robots.txt">robots.txt</a></td></tr>';
     }
 }
 
 $tables = '<table class="table table-hover">
             <tr>
                 <th>Domain</th><th>Sitemap</th><th>robots.txt</th></tr>
-            '.implode('', $domains).'
+            ' . implode('', $domains) . '
             </table>';
 
 $fragment = new rex_fragment();
