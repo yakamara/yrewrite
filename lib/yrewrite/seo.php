@@ -249,7 +249,7 @@ class rex_yrewrite_seo
         exit;
     }
 
-    public function sendSitemap($domain = '')
+    public function sendSitemap($domain = '', $clang = 0)
     {
         $domains = rex_yrewrite::getDomains();
 
@@ -274,7 +274,7 @@ class rex_yrewrite_seo
 
             foreach (rex_yrewrite::getPathsByDomain($domain->getName()) as $article_id => $path) {
                 foreach ($domain->getClangs() as $clang_id) {
-                    if (!isset($path[$clang_id]) || !rex_clang::get($clang_id)->isOnline()) {
+                    if (!isset($path[$clang_id]) || !rex_clang::get($clang_id)->isOnline() || ($clang > 0 && $clang != $clang_id)) {
                         continue;
                     }
 
@@ -328,7 +328,7 @@ class rex_yrewrite_seo
                     }
                 }
             }
-            $sitemap = rex_extension::registerPoint(new rex_extension_point('YREWRITE_DOMAIN_SITEMAP', $sitemap, ['domain' => $domain]));
+            $sitemap = rex_extension::registerPoint(new rex_extension_point('YREWRITE_DOMAIN_SITEMAP', $sitemap, ['domain' => $domain, 'clang' => $clang]));
         }
         $sitemap = rex_extension::registerPoint(new rex_extension_point('YREWRITE_SITEMAP', $sitemap));
 

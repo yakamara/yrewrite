@@ -156,8 +156,11 @@ rex_extension::register('PACKAGES_INCLUDED', function ($params) {
 
 if ('sitemap' == rex_request('rex_yrewrite_func', 'string')) {
     rex_extension::register('PACKAGES_INCLUDED', static function ($params) {
+        $domain = rex_request('rex_yrewrite_param_domain', 'string', '');
+        $lang = rex_request('rex_yrewrite_param_clang', 'integer', 0);
+
         $sitemap = new rex_yrewrite_seo();
-        $sitemap->sendSitemap();
+        $sitemap->sendSitemap($domain, $lang);
     }, rex_extension::LATE);
 }
 
