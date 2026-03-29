@@ -42,7 +42,7 @@ if (rex_version::compare($this->getVersion(), '2.1', '<=')) {
 if (rex_version::compare($this->getVersion(), '2.7-dev', '<=')) {
     $where = 'clangs NOT LIKE "%,%"';
     if (rex_clang::count() > 1) {
-        $where = 'clangs != "" AND '.$where;
+        $where = 'clangs != "" AND ' . $where;
     }
 
     rex_sql::factory()

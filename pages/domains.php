@@ -26,26 +26,26 @@ if ('' != $func) {
     $yform->setObjectparams('main_table', rex::getTable('yrewrite_domain'));
     $yform->setObjectparams('form_name', 'yrewrite_domains_form');
 
-    $yform->setValueField('text', ['domain', $this->i18n('domain'), 'notice' => '<small>'.$this->i18n('domain_info').'</small>']);
+    $yform->setValueField('text', ['domain', $this->i18n('domain'), 'notice' => '<small>' . $this->i18n('domain_info') . '</small>']);
     $yform->setValidateField('empty', ['domain', $this->i18n('no_domain_defined')]);
     $yform->setValidateField('unique', ['domain', $this->i18n('domain_already_defined')]);
     $yform->setValidateField('preg_match', ['domain', '/^(?:http[s]?:\/\/)?[a-zA-Z0-9][a-zA-Z0-9._-]*(?::\d+)?(?:\/[^\\/\:\*\?\"<>\|]*)*(?:\/[a-zA-Z0-9_%,\.\=\?\-#&]*)*$/', $this->i18n('domain_not_well_formed')]);
 
-    $yform->setValueField('be_link', ['mount_id', $this->i18n('mount_id'), 'notice' => '<small>'.$this->i18n('mount_info').'</small>']);
+    $yform->setValueField('be_link', ['mount_id', $this->i18n('mount_id'), 'notice' => '<small>' . $this->i18n('mount_info') . '</small>']);
 
-    $yform->setValueField('be_link', ['start_id', $this->i18n('start_id'), 'notice' => '<small>'.$this->i18n('start_info').'</small>']);
+    $yform->setValueField('be_link', ['start_id', $this->i18n('start_id'), 'notice' => '<small>' . $this->i18n('start_info') . '</small>']);
     $yform->setValidateField('empty', ['start_id', $this->i18n('no_start_id_defined')]);
 
-    $yform->setValueField('be_link', ['notfound_id', $this->i18n('notfound_id'), 'notice' => '<small>'.$this->i18n('notfound_info').'</small>']);
+    $yform->setValueField('be_link', ['notfound_id', $this->i18n('notfound_id'), 'notice' => '<small>' . $this->i18n('notfound_info') . '</small>']);
     $yform->setValidateField('empty', ['notfound_id', $this->i18n('no_not_found_id_defined')]);
 
-    $yform->setValueField('choice', ['clangs', $this->i18n('clangs'), 'select id, name from '.rex::getTable('clang'), 0, 1, '', '', '', '', '', '', '', '<small>'.$this->i18n('clangs_info').'</small>']);
-    $yform->setValueField('choice', ['clang_start', $this->i18n('clang_start'), 'select id, name from '.rex::getTable('clang'), 0, 0, '', '', '', '', '', '', '', '<small>'.$this->i18n('clang_start_info').'</small>']);
+    $yform->setValueField('choice', ['clangs', $this->i18n('clangs'), 'select id, name from ' . rex::getTable('clang'), 0, 1, '', '', '', '', '', '', '', '<small>' . $this->i18n('clangs_info') . '</small>']);
+    $yform->setValueField('choice', ['clang_start', $this->i18n('clang_start'), 'select id, name from ' . rex::getTable('clang'), 0, 0, '', '', '', '', '', '', '', '<small>' . $this->i18n('clang_start_info') . '</small>']);
     $yform->setValueField('checkbox', ['clang_start_hidden', $this->i18n('clang_start_hidden'), 'attributes' => ['data-yrewrite-clang-start-hidden' => '1']]);
     $yform->setValueField('checkbox', ['clang_start_auto', $this->i18n('clang_start_auto'), 'attributes' => ['data-yrewrite-clang-start-auto' => '1']]);
-    $yform->setValueField('text', ['title_scheme', $this->i18n('domain_title_scheme'), rex_yrewrite_seo::$title_scheme_default, 'notice' => '<small>'.$this->i18n('domain_title_scheme_info').'</small>']);
-    $yform->setValueField('checkbox', ['auto_redirect', $this->i18n('auto_redirects'), 'notice' => '<small>'.$this->i18n('yrewrite_auto_redirect').'</small>']);
-    $yform->setValueField('text', ['auto_redirect_days', $this->i18n('yrewrite_auto_redirect_days'), 'notice' => '<small>'.$this->i18n('yrewrite_auto_redirect_days_info').'</small>']);
+    $yform->setValueField('text', ['title_scheme', $this->i18n('domain_title_scheme'), rex_yrewrite_seo::$title_scheme_default, 'notice' => '<small>' . $this->i18n('domain_title_scheme_info') . '</small>']);
+    $yform->setValueField('checkbox', ['auto_redirect', $this->i18n('auto_redirects'), 'notice' => '<small>' . $this->i18n('yrewrite_auto_redirect') . '</small>']);
+    $yform->setValueField('text', ['auto_redirect_days', $this->i18n('yrewrite_auto_redirect_days'), 'notice' => '<small>' . $this->i18n('yrewrite_auto_redirect_days_info') . '</small>']);
 
     $js = '
         <script nonce="' . rex_response::getNonce() . '">
@@ -71,7 +71,7 @@ if ('' != $func) {
             echo rex_view::error(rex_i18n::msg('csrf_token_invalid'));
         } else {
             $d = rex_sql::factory();
-            $d->setQuery('delete from '.rex::getTable('yrewrite_domain').' where id=' . $data_id);
+            $d->setQuery('delete from ' . rex::getTable('yrewrite_domain') . ' where id=' . $data_id);
             echo rex_view::success($this->i18n('domain_deleted'));
             rex_yrewrite::deleteCache();
         }
@@ -94,7 +94,7 @@ if ('' != $func) {
             $fragment = new rex_fragment();
             $fragment->setVar('class', 'edit', false);
             $fragment->setVar('title', $this->i18n('edit_domain'));
-            $fragment->setVar('body', $form.$js, false);
+            $fragment->setVar('body', $form . $js, false);
             echo $fragment->parse('core/page/section.php');
         }
     } elseif ('add' == $func) {
@@ -112,7 +112,7 @@ if ('' != $func) {
             $fragment = new rex_fragment();
             $fragment->setVar('class', 'edit', false);
             $fragment->setVar('title', $this->i18n('add_domain'));
-            $fragment->setVar('body', $form.$js, false);
+            $fragment->setVar('body', $form . $js, false);
             echo $fragment->parse('core/page/section.php');
         }
     }
@@ -156,7 +156,7 @@ if ($showlist) {
                 }
             }
             if (count($return) > 1) {
-                $return = implode(',', $return) . '<br />'.$this->i18n('clang_start').': '.rex_clang::get($params['list']->getValue('clang_start'))->getName();
+                $return = implode(',', $return) . '<br />' . $this->i18n('clang_start') . ': ' . rex_clang::get($params['list']->getValue('clang_start'))->getName();
             } else {
                 $return = implode(',', $return);
             }
@@ -184,14 +184,14 @@ if ($showlist) {
         }
         if ($article = rex_article::get($id)) {
             if ($article->isStartArticle()) {
-                $link = 'index.php?page=structure&category_id='.$id.'&clang=1';
+                $link = 'index.php?page=structure&category_id=' . $id . '&clang=1';
             } else {
-                $link = 'index.php?page=content&article_id='.$id.'&mode=edit&clang=1';
+                $link = 'index.php?page=content&article_id=' . $id . '&mode=edit&clang=1';
             }
-            return $article->getName().' [<a href="'.$link.'">'.$id.'</a>]';
+            return $article->getName() . ' [<a href="' . $link . '">' . $id . '</a>]';
         }
 
-        return '['.$id.']';
+        return '[' . $id . ']';
     };
 
     $list->setColumnFormat('mount_id', 'custom', $showArticle, []);

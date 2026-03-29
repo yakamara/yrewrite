@@ -30,7 +30,7 @@ class rex_yrewrite_domain
     private $autoRedirect;
     private $autoRedirectDays;
 
-    public function __construct($name, $scheme, $path, $mountId, $startId, $notfoundId, array $clangs = null, $startClang = 1, $title = '', $description = '', $robots = '', $startClangHidden = false, $id = null, $autoRedirect = false, $autoRedirectDays = 0, $startClangAuto = false)
+    public function __construct($name, $scheme, $path, $mountId, $startId, $notfoundId, ?array $clangs = null, $startClang = 1, $title = '', $description = '', $robots = '', $startClangHidden = false, $id = null, $autoRedirect = false, $autoRedirectDays = 0, $startClangAuto = false)
     {
         $this->id = $id;
         $this->name = $name;

@@ -59,31 +59,31 @@ class rex_yrewrite_seo
         $tagsTwitter['twitter:card'] = '<meta name="twitter:card" content="summary">';
 
         $title = rex_escape($this->getTitle());
-        $tags['title'] = '<title>'.$title.'</title>';
-        $tagsOg['og:title'] = '<meta property="og:title" content="'.$title.'">';
+        $tags['title'] = '<title>' . $title . '</title>';
+        $tagsOg['og:title'] = '<meta property="og:title" content="' . $title . '">';
         $tagsOg['og:type'] = '<meta property="og:type" content="website">';
-        $tagsTwitter['twitter:title'] = '<meta name="twitter:title" content="'.$title.'">';
+        $tagsTwitter['twitter:title'] = '<meta name="twitter:title" content="' . $title . '">';
 
         $description = rex_escape($this->getDescription());
         if ('' != $description) {
-            $tags['description'] = '<meta name="description" content="'.$description.'">';
-            $tagsOg['og:description'] = '<meta property="og:description" content="'.$description.'">';
-            $tagsTwitter['twitter:description'] = '<meta name="twitter:description" content="'.$description.'">';
+            $tags['description'] = '<meta name="description" content="' . $description . '">';
+            $tagsOg['og:description'] = '<meta property="og:description" content="' . $description . '">';
+            $tagsTwitter['twitter:description'] = '<meta name="twitter:description" content="' . $description . '">';
         }
 
         $image = $this->getImage();
         if ('' != $image) {
             $media = rex_media::get($image);
-            $tagsOg['og:image'] = '<meta property="og:image" content="'.rtrim($this->domain->getUrl(), '/').rex_media_manager::getUrl('yrewrite_seo_image', $image).'">';
+            $tagsOg['og:image'] = '<meta property="og:image" content="' . rtrim($this->domain->getUrl(), '/') . rex_media_manager::getUrl('yrewrite_seo_image', $image) . '">';
             if ($media) {
                 if ($media->getTitle()) {
-                    $tagsOg['og:image:alt'] = '<meta property="og:image:alt" content="'.rex_escape($media->getTitle()).'">';
+                    $tagsOg['og:image:alt'] = '<meta property="og:image:alt" content="' . rex_escape($media->getTitle()) . '">';
                 }
-                $tagsOg['og:image:type'] = '<meta property="og:image:type" content="'.rex_escape($media->getType()).'">';
+                $tagsOg['og:image:type'] = '<meta property="og:image:type" content="' . rex_escape($media->getType()) . '">';
             }
-            $tagsOg['twitter:image'] = '<meta name="twitter:image" content="'.rtrim($this->domain->getUrl(), '/').rex_media_manager::getUrl('yrewrite_seo_image', $image).'">';
+            $tagsOg['twitter:image'] = '<meta name="twitter:image" content="' . rtrim($this->domain->getUrl(), '/') . rex_media_manager::getUrl('yrewrite_seo_image', $image) . '">';
             if ($media && $media->getTitle()) {
-                $tagsOg['twitter:image:alt'] = '<meta name="twitter:image:alt" content="'.rex_escape($media->getTitle()).'">';
+                $tagsOg['twitter:image:alt'] = '<meta name="twitter:image:alt" content="' . rex_escape($media->getTitle()) . '">';
             }
         }
 
@@ -95,41 +95,41 @@ class rex_yrewrite_seo
         } elseif (2 == $index) {
             $content = 'noindex, follow';
         }
-        $tags['robots'] = '<meta name="robots" content="'.$content.'">';
+        $tags['robots'] = '<meta name="robots" content="' . $content . '">';
 
         $canonicalUrl = rex_escape($this->getCanonicalUrl());
         if (1 == $index || (0 == $index && $this->article->isOnline())) {
-            $tags['canonical'] = '<link rel="canonical" href="'.$canonicalUrl.'">';
+            $tags['canonical'] = '<link rel="canonical" href="' . $canonicalUrl . '">';
         }
-        $tagsOg['og:url'] = '<meta property="og:url" content="'.$canonicalUrl.'">';
-        $tagsTwitter['twitter:url'] = '<meta name="twitter:url" content="'.$canonicalUrl.'">';
+        $tagsOg['og:url'] = '<meta property="og:url" content="' . $canonicalUrl . '">';
+        $tagsTwitter['twitter:url'] = '<meta name="twitter:url" content="' . $canonicalUrl . '">';
 
         $hrefs = $this->getHrefLangs();
         foreach ($hrefs as $code => $url) {
-            $tags['hreflang:'.$code] = '<link rel="alternate" hreflang="' . $code . '" href="' . $url . '">';
+            $tags['hreflang:' . $code] = '<link rel="alternate" hreflang="' . $code . '" href="' . $url . '">';
         }
 
         $tags += $tagsOg + $tagsTwitter;
-        $tags = rex_extension::registerPoint(new \rex_extension_point('YREWRITE_SEO_TAGS', $tags));
+        $tags = rex_extension::registerPoint(new rex_extension_point('YREWRITE_SEO_TAGS', $tags));
         return implode("\n", $tags);
     }
 
     /** @deprecated use getTags instead */
     public function getTitleTag()
     {
-        return '<title>'.rex_escape(strip_tags($this->getTitle())).'</title>'; // lang="de"
+        return '<title>' . rex_escape(strip_tags($this->getTitle())) . '</title>'; // lang="de"
     }
 
     /** @deprecated use getTags instead */
     public function getDescriptionTag()
     {
-        return '<meta name="description" content="'.rex_escape(strip_tags($this->getDescription())).'">'; //  lang="de"
+        return '<meta name="description" content="' . rex_escape(strip_tags($this->getDescription())) . '">'; //  lang="de"
     }
 
     /** @deprecated use getTags instead */
     public function getCanonicalUrlTag()
     {
-        return '<link rel="canonical" href="'.rex_escape($this->getCanonicalUrl()).'">';
+        return '<link rel="canonical" href="' . rex_escape($this->getCanonicalUrl()) . '">';
     }
 
     /** @deprecated use getTags instead */
@@ -234,7 +234,7 @@ class rex_yrewrite_seo
 
         header('Content-Type: text/plain');
         // header content length ?
-        $content = 'Sitemap: '.rex_yrewrite::getFullPath('sitemap.xml')."\n\n";
+        $content = 'Sitemap: ' . rex_yrewrite::getFullPath('sitemap.xml') . "\n\n";
 
         if (rex_yrewrite::getDomainByName($domain)) {
             $robots = rex_yrewrite::getDomainByName($domain)->getRobots();
@@ -282,10 +282,10 @@ class rex_yrewrite_seo
                     $index = $article->getValue(self::$meta_index_field) ?? self::$index_setting_default;
 
                     if (
-                        $article &&
-                        $article->isPermitted() &&
-                        (1 == $index || ($article->isOnline() && 0 == $index)) &&
-                        ($article_id != $domain->getNotfoundId() || $article_id == $domain->getStartId())
+                        $article
+                        && $article->isPermitted()
+                        && (1 == $index || ($article->isOnline() && 0 == $index))
+                        && ($article_id != $domain->getNotfoundId() || $article_id == $domain->getStartId())
                     ) {
                         $changefreq = $article->getValue(self::$meta_changefreq_field);
                         if (!in_array($changefreq, self::$changefreq)) {
@@ -309,21 +309,21 @@ class rex_yrewrite_seo
                         }
 
                         $sitemap_entry =
-                          "\n".'<url>'.
-                          "\n\t".'<loc>'.rex_yrewrite::getFullPath($path[$clang_id]).'</loc>'.
-                          "\n\t".'<lastmod>'.date(DATE_W3C, $article->getUpdateDate()).'</lastmod>'; // Serverzeitzone passt
+                          "\n" . '<url>' .
+                          "\n\t" . '<loc>' . rex_yrewrite::getFullPath($path[$clang_id]) . '</loc>' .
+                          "\n\t" . '<lastmod>' . date(DATE_W3C, $article->getUpdateDate()) . '</lastmod>'; // Serverzeitzone passt
                         if ($article->getValue(self::$meta_image_field)) {
                             $media = rex_media::get((string) $article->getValue(self::$meta_image_field));
                             if ($media) {
-                                $sitemap_entry .= "\n\t".'<image:image>'.
-                                    "\n\t\t".'<image:loc>'.rtrim(rex_yrewrite::getDomainByArticleId($article->getId())->getUrl(), '/').rex_media_manager::getUrl('yrewrite_seo_image', $media->getFileName()).'</image:loc>'.
-                                    ($media->getTitle() ? "\n\t\t".'<image:title>'.rex_escape($media->getTitle()).'</image:title>' : '').
-                                    "\n\t".'</image:image>';
+                                $sitemap_entry .= "\n\t" . '<image:image>' .
+                                    "\n\t\t" . '<image:loc>' . rtrim(rex_yrewrite::getDomainByArticleId($article->getId())->getUrl(), '/') . rex_media_manager::getUrl('yrewrite_seo_image', $media->getFileName()) . '</image:loc>' .
+                                    ($media->getTitle() ? "\n\t\t" . '<image:title>' . rex_escape($media->getTitle()) . '</image:title>' : '') .
+                                    "\n\t" . '</image:image>';
                             }
                         }
-                        $sitemap_entry .= "\n\t".'<changefreq>'.$changefreq.'</changefreq>'.
-                          "\n\t".'<priority>'.$priority.'</priority>'.
-                          "\n".'</url>';
+                        $sitemap_entry .= "\n\t" . '<changefreq>' . $changefreq . '</changefreq>' .
+                          "\n\t" . '<priority>' . $priority . '</priority>' .
+                          "\n" . '</url>';
                         $sitemap[] = $sitemap_entry;
                     }
                 }
@@ -335,10 +335,10 @@ class rex_yrewrite_seo
         rex_response::cleanOutputBuffers();
         header('Content-Type: application/xml');
         $content = '<?xml version="1.0" encoding="UTF-8"?>';
-        $content .= "\n".'<?xml-stylesheet type="text/xsl" href="assets/addons/yrewrite/xsl-stylesheets/xml-sitemap.xsl"?>';
-        $content .= "\n".'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">';
+        $content .= "\n" . '<?xml-stylesheet type="text/xsl" href="assets/addons/yrewrite/xsl-stylesheets/xml-sitemap.xsl"?>';
+        $content .= "\n" . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">';
         $content .= implode("\n", $sitemap);
-        $content .= "\n".'</urlset>';
+        $content .= "\n" . '</urlset>';
         echo $content;
         exit;
     }

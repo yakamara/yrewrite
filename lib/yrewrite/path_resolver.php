@@ -52,10 +52,10 @@ class rex_yrewrite_path_resolver
         $domainScheme = $domain->getScheme();
         $coreUseHttps = rex::getProperty('use_https');
         if (
-            $domainScheme && $domainScheme !== $currentScheme &&
-            true !== $coreUseHttps && rex::getEnvironment() !== $coreUseHttps
+            $domainScheme && $domainScheme !== $currentScheme
+            && true !== $coreUseHttps && rex::getEnvironment() !== $coreUseHttps
         ) {
-            $this->redirect($domainScheme.'://'.$host, $url, $params);
+            $this->redirect($domainScheme . '://' . $host, $url, $params);
         }
 
         if (rex::isBackend()) {
@@ -75,7 +75,7 @@ class rex_yrewrite_path_resolver
             foreach ((new rex_yrewrite_seo())->getHrefLangs() as $lang => $href) {
                 $hreflangs[] = "<$href>;  rel=\"alternate\"; hreflang=\"$lang\"";
             }
-            header('Link: '.implode(', ', $hreflangs));
+            header('Link: ' . implode(', ', $hreflangs));
 
             $this->redirect($currentScheme . '://' . $host, rex_getUrl($domain->getStartId(), $startClang), $params, '302 Found');
         }
@@ -230,7 +230,7 @@ class rex_yrewrite_path_resolver
                     break 2;
                 }
 
-                if (str_starts_with($code, $clangCode.'_')) {
+                if (str_starts_with($code, $clangCode . '_')) {
                     $startClangFallback = $clang->getId();
                 }
             }
@@ -270,20 +270,20 @@ class rex_yrewrite_path_resolver
                 if (isset($redirection['url'])) {
                     $url = $redirection['url'];
                 } else {
-                    $url = rex_yrewrite::getFullUrlByArticleId($redirection['id'], $redirection['clang']).$params;
+                    $url = rex_yrewrite::getFullUrlByArticleId($redirection['id'], $redirection['clang']) . $params;
                 }
 
-                header('HTTP/1.1 '.rex_response::HTTP_MOVED_PERMANENTLY);
+                header('HTTP/1.1 ' . rex_response::HTTP_MOVED_PERMANENTLY);
                 header('Location: ' . $url);
                 exit;
             }
         }
     }
 
-    /** @return never-return */
+    /** @return never */
     private function redirect(string $host, string $url, string $params, string $status = rex_response::HTTP_MOVED_PERMANENTLY)
     {
-        header('HTTP/1.1 '.$status);
+        header('HTTP/1.1 ' . $status);
         header('Location: ' . rtrim($host, '/') . '/' . ltrim($url, '/') . $params);
         exit;
     }

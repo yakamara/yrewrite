@@ -36,20 +36,20 @@ if ('' != $func) {
     $yform->setObjectparams('main_table', rex::getTable('yrewrite_forward'));
     $yform->setObjectparams('form_name', 'yrewrite_forward_form');
 
-    $yform->setValueField('choice', ['status', $this->i18n('forward_status'), $this->i18n('forward_active').'=1,'.$this->i18n('forward_inactive').'=0']);
-    $yform->setValueField('choice', ['domain_id', $this->i18n('domain'), 'select id,domain as name from '.rex::getTable('yrewrite_domain') . ' ORDER BY name']);
-    $yform->setValueField('text', ['url', $this->i18n('forward_url'), 'notice' => '<small>'.$this->i18n('forward_url_info').'</small>']);
+    $yform->setValueField('choice', ['status', $this->i18n('forward_status'), $this->i18n('forward_active') . '=1,' . $this->i18n('forward_inactive') . '=0']);
+    $yform->setValueField('choice', ['domain_id', $this->i18n('domain'), 'select id,domain as name from ' . rex::getTable('yrewrite_domain') . ' ORDER BY name']);
+    $yform->setValueField('text', ['url', $this->i18n('forward_url'), 'notice' => '<small>' . $this->i18n('forward_url_info') . '</small>']);
     $yform->setValidateField('preg_match', ['url', '@^[%_\.+\-\w]+[/%_\.+\,\-\w]*(?<!\/)(?:\?.+)?$@u', $this->i18n('warning_chars')]);
     // $this->i18n('warning_noslash')
     $yform->setValidateField('size_range', ['url', 1, 255, $this->i18n('warning_nottolong')]);
     $yform->setValidateField('empty', ['url', $this->i18n('forward_enter_url')]);
     $yform->setValidateField('unique', ['domain_id,url', $this->i18n('forward_domainurl_already_defined')]);
-    $yform->setValueField('choice', ['movetype', $this->i18n('forward_move_method'), $this->i18n('forward_301').'=301,'.$this->i18n('forward_302').'=302,'.$this->i18n('forward_303').'=303,'.$this->i18n('forward_307').'=307', '', '', '301']);
-    $yform->setValueField('choice', ['type', $this->i18n('forward_type'), $this->i18n('forward_type_article').'=article,'.$this->i18n('forward_type_extern').'=extern,'.$this->i18n('forward_type_media').'=media']);
+    $yform->setValueField('choice', ['movetype', $this->i18n('forward_move_method'), $this->i18n('forward_301') . '=301,' . $this->i18n('forward_302') . '=302,' . $this->i18n('forward_303') . '=303,' . $this->i18n('forward_307') . '=307', '', '', '301']);
+    $yform->setValueField('choice', ['type', $this->i18n('forward_type'), $this->i18n('forward_type_article') . '=article,' . $this->i18n('forward_type_extern') . '=extern,' . $this->i18n('forward_type_media') . '=media']);
 
     $yform->setValueField('html', ['', '<div id="rex-yrewrite-forward-article">']);
     $yform->setValueField('be_link', ['article_id', $this->i18n('forward_article_id')]);
-    $yform->setValueField('choice', ['clang', $this->i18n('forward_clang'), 'select id, name from '.rex::getTable('clang')]);
+    $yform->setValueField('choice', ['clang', $this->i18n('forward_clang'), 'select id, name from ' . rex::getTable('clang')]);
     $yform->setValueField('html', ['', '</div>']);
 
     $yform->setValueField('html', ['', '<div id="rex-yrewrite-forward-extern">']);
@@ -171,7 +171,7 @@ if ($showlist) {
         $domain = rex_yrewrite::getDomainById($params['subject']);
         $url = $domain ? $domain->getUrl() : '';
         $url .= $params['list']->getValue('url');
-        $url = '<a href="'.$url.'" onclick="window.open(this.href); return false;"><i class="rex-icon rex-icon-package-addon fa-external-link"></i> '.$url.'</a>';
+        $url = '<a href="' . $url . '" onclick="window.open(this.href); return false;"><i class="rex-icon rex-icon-package-addon fa-external-link"></i> ' . $url . '</a>';
         return $url;
     });
 
@@ -196,9 +196,9 @@ if ($showlist) {
     $list->setColumnFormat('status', 'custom', static function ($params) {
         $list = $params['list'];
         if (1 == $list->getValue('status')) {
-            $str = '<span class="rex-online">'.rex_i18n::msg('yrewrite_forward_active').'</span>';
+            $str = '<span class="rex-online">' . rex_i18n::msg('yrewrite_forward_active') . '</span>';
         } else {
-            $str = '<span class="rex-offline">'.rex_i18n::msg('yrewrite_forward_inactive').'</span>';
+            $str = '<span class="rex-offline">' . rex_i18n::msg('yrewrite_forward_inactive') . '</span>';
         }
         return $str;
     },

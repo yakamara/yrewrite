@@ -26,7 +26,7 @@ $table
 ;
 
 if (!$urlTypeExists) {
-    rex_sql::factory()->setQuery('UPDATE '.rex::getTable('article').' SET yrewrite_url_type = IF(yrewrite_url != "", "CUSTOM", "AUTO")');
+    rex_sql::factory()->setQuery('UPDATE ' . rex::getTable('article') . ' SET yrewrite_url_type = IF(yrewrite_url != "", "CUSTOM", "AUTO")');
 }
 
 $table = rex_sql_table::get(rex::getTable('yrewrite_domain'));
@@ -79,13 +79,13 @@ $c->setQuery('ALTER TABLE `' . rex::getTable('yrewrite_alias') . '` CONVERT TO C
 $c->setQuery('ALTER TABLE `' . rex::getTable('yrewrite_forward') . '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
 
 // Add media manager type
-$c->setQuery('SELECT * FROM '. rex::getTable('media_manager_type') ." WHERE name = 'yrewrite_seo_image'");
+$c->setQuery('SELECT * FROM ' . rex::getTable('media_manager_type') . " WHERE name = 'yrewrite_seo_image'");
 if (0 == $c->getRows()) {
-    $c->setQuery('INSERT INTO '. rex::getTable('media_manager_type') ." (`status`, `name`, `description`) VALUES
+    $c->setQuery('INSERT INTO ' . rex::getTable('media_manager_type') . " (`status`, `name`, `description`) VALUES
         (0, 'yrewrite_seo_image', 'YRewrite SEO Vorschaubild für Sitemap und Open Graph Tags');");
     $last_id = $c->getLastId();
-    $c->setQuery('INSERT INTO '.\rex::getTable('media_manager_type_effect').' (`type_id`, `effect`, `parameters`, `priority`, `createdate`) VALUES
-        ('.$last_id .', \'resize\', \'{\"rex_effect_resize\":{\"rex_effect_resize_width\":\"4096\",\"rex_effect_resize_height\":\"4096\",\"rex_effect_resize_style\":\"maximum\",\"rex_effect_resize_allow_enlarge\":\"not_enlarge\"}}\', 1, CURRENT_TIMESTAMP);');
+    $c->setQuery('INSERT INTO ' . rex::getTable('media_manager_type_effect') . ' (`type_id`, `effect`, `parameters`, `priority`, `createdate`) VALUES
+        (' . $last_id . ', \'resize\', \'{\"rex_effect_resize\":{\"rex_effect_resize_width\":\"4096\",\"rex_effect_resize_height\":\"4096\",\"rex_effect_resize_style\":\"maximum\",\"rex_effect_resize_allow_enlarge\":\"not_enlarge\"}}\', 1, CURRENT_TIMESTAMP);');
 }
 
 rex_package::require('yrewrite')->clearCache();

@@ -16,7 +16,7 @@ jobs:
 
         steps:
             -   name: Checkout
-                uses: actions/checkout@v4
+                uses: actions/checkout@v6
 
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
@@ -36,13 +36,13 @@ jobs:
 
         steps:
             -   name: Checkout
-                uses: actions/checkout@v4
+                uses: actions/checkout@v6
                 if: env.writable == 1
                 with:
                     ref: ${{ github.head_ref }}
                     token: ${{ secrets.BOT_TOKEN }}
             -   name: Checkout fork
-                uses: actions/checkout@v4
+                uses: actions/checkout@v6
                 if: env.writable == 0
 
             -   name: Setup PHP
@@ -60,7 +60,7 @@ jobs:
                 run: vendor/bin/php-cs-fixer list-files --config=.php-cs-fixer.dist.php | xargs -n 250 -P 3 vendor/bin/php-cs-fixer fix --diff --config=.php-cs-fixer.dist.php
 
             -   name: Commit changed files
-                uses: stefanzweifel/git-auto-commit-action@v5
+                uses: stefanzweifel/git-auto-commit-action@v7
                 if: env.writable == 1
                 with:
                     commit_message: Apply php-cs-fixer changes
