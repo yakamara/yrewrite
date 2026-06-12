@@ -1,0 +1,175 @@
+yrewrite = YRewrite
+
+# content page
+yrewrite_rewriter = URL
+yrewrite_rewriter_seo = SEO data
+
+yrewrite_url_type = URL type
+yrewrite_url_type_auto = Automatic
+yrewrite_url_type_custom = Custom URL
+yrewrite_url_type_redirection_internal = Redirect to article
+yrewrite_url_type_redirection_external = Redirect to URL
+
+yrewrite_domains = Domains
+yrewrite_article_urls = Article URLs
+yrewrite_setup = Setup
+yrewrite_docs = Documentation
+
+yrewrite_error_article_in_use = Article cannot be deleted because it is still in use.
+yrewrite_error_domain_missing = Please create a domain first.
+
+yrewrite_startarticleisalways = This is the start article of domain "{0}" and cannot be changed. The URL is always "/" here.
+
+yrewrite_add_domain = Add domain
+yrewrite_domain_added = Domain has been added
+yrewrite_edit_domain = Edit domain
+yrewrite_domain_deleted = Domain has been deleted. Cache has been cleared.
+yrewrite_domain_updated = Domain has been updated. Cache has been cleared.
+
+yrewrite_save = save
+yrewrite_update = update
+
+yrewrite_domain = Domain
+yrewrite_domain_info = http/https is optional. If specified, all links will always point to the given protocol. If omitted, the current one is used. A trailing slash does not matter, it is normalized by the addon. "www" must be specified if the domain is used with "www". If REDAXO runs in a subfolder, it must be included. Example: <code>http://domain.com/subfolder/</code>
+
+yrewrite_mount_id = Mount point of the domain
+yrewrite_mount_info = Set the mount point (optional). If only part of the article structure should be reachable via the domain, choose the start article of a category containing that content. If no mount point is set, all content not assigned to another domain is reachable (default). Leave empty if root categories are needed as URLs.
+
+yrewrite_start_id = Start article of the domain
+yrewrite_start_info = Article used as the start article of the domain.
+
+yrewrite_notfound_id = 404 article
+yrewrite_notfound_info = Article used as the 404 of the domain.
+
+yrewrite_clangs = Languages
+yrewrite_clangs_info = Select the languages reachable under the domain. Select none if all languages (including future ones) should be reachable via this domain.
+yrewrite_alllangs = All languages
+yrewrite_clang_start_auto = Start language automatically based on the client browser language, preferred language as fallback
+yrewrite_clang_start = Preferred language
+yrewrite_clang_start_info = Used when calling the start page if the language cannot/should not be set automatically.
+yrewrite_clang_start_hidden = Do not show preferred language in URL
+
+yrewrite_alias_domain = Alias domain
+yrewrite_alias_domains = Alias domains
+
+yrewrite_domain_title_scheme = Page title scheme
+yrewrite_domain_title_scheme_info = %T=SEO title or article name, %SN=server name
+yrewrite_domain_description = Page description (if article description is empty)
+yrewrite_domain_description_info = Characters / recommendation: 160 characters
+yrewrite_domain_robots = robots.txt
+
+yrewrite_root = --- Root level --- [0]
+
+yrewrite_alias_domain_refersto = This domain will be redirected
+yrewrite_alias_domain_refersto_notice = Please enter without `http[s]://`
+yrewrite_domain_willbereferdto = to this domain
+
+yrewrite_domain_already_defined = Domain is already defined
+yrewrite_no_domain_defined = No domain was defined
+yrewrite_no_start_id_defined = Please select a start article
+yrewrite_no_not_found_id_defined = Please select a 404 article
+yrewrite_domain_not_well_formed = Domain/URL format is not valid.
+
+yrewrite_warning_noslash = Please do not use a <code>/</code> at the start and end of the URL
+yrewrite_warning_nottolong = The URL must not be longer than 250 characters
+yrewrite_warning_chars = The URL is not valid. Mind the notation. Only "a-z/0-9 -", no / at start and end
+yrewrite_warning_urlexists = This URL already exists for article with id={0}
+yrewrite_warning_redirect_to_self = The article cannot redirect to itself.
+yrewrite_warning_otherarticle = To the other article
+yrewrite_urlupdated = URL has been updated
+
+yrewrite_seotitle = Title
+yrewrite_seodescription = Description
+yrewrite_seoimage = Image
+yrewrite_seoimage_error_delete = SEO image of article
+yrewrite_priority = Priority:
+yrewrite_changefreq = Change frequency:
+
+yrewrite_seoupdated = SEO data has been updated.
+
+yrewrite_priority_auto = automatic
+yrewrite_priority_0_0 = insignificant [0.0]
+yrewrite_priority_0_1 = very unimportant [0.1]
+yrewrite_priority_0_3 = unimportant [0.3]
+yrewrite_priority_0_5 = normal [0.5]
+yrewrite_priority_0_7 = important [0.7]
+yrewrite_priority_1_0 = very important [1.0]
+
+yrewrite_changefreq_daily = daily
+yrewrite_changefreq_hourly = hourly
+yrewrite_changefreq_weekly = weekly
+yrewrite_changefreq_monthly = monthly
+yrewrite_changefreq_yearly = yearly
+yrewrite_changefreq_never = never
+yrewrite_changefreq_always = always
+
+yrewrite_index = Indexing and sitemap
+yrewrite_index_status = Allow indexing and show in sitemap depending on status
+yrewrite_index_index = Allow indexing / show in sitemap (Index)
+yrewrite_index_noindex = Disallow indexing / do not show in sitemap (NoIndex)
+yrewrite_index_noindex_follow = Disallow indexing and follow links / do not show in sitemap (NoIndex)
+
+yrewrite_htaccess_hasbeenset = .htaccess file has been set/replaced
+yrewrite_htaccess_set = Set .htaccess file
+yrewrite_htaccess_hasnotbeenset = .htaccess file could not be set/replaced - check write permissions
+yrewrite_htaccess_info = To use YRewrite, a .htaccess file is created in the root folder. If another .htaccess file already exists, it will be replaced. Please back up the .htaccess file beforehand if necessary.
+
+yrewrite_info_headline = Using YRewrite
+yrewrite_info_text = Since YRewrite is intended for <mark>multidomain setups</mark>, there are certain prerequisites. All URL replacements are handled by YRewrite. This means a URL may contain the domain name depending on the situation. Therefore please <mark>do not use a base tag</mark> in templates. If something gets mixed up due to custom development or similar, please clear the general cache. This allows YRewrite to recreate the config and URL files.
+yrewrite_info_tipps = Tips
+yrewrite_info_tipps_text = <ul><li>All <mark>settings under <i>System</i></mark> (website URL, start article and error article) are <mark>ignored</mark> when using YRewrite.</li><li>If <mark>only one domain</mark> is used, the field <code>Mount point of the domain</code> in the domain settings must be left empty.</li></ul>
+yrewrite_info_seo = Using the SEO options
+yrewrite_info_seo_text = Please put the following code <mark>into the template</mark> in the <mark>&lt;head&gt;</mark> section. Do not use your own title and description tags.
+yrewrite_info_sitemaprobots = sitemap.xml and robots.txt
+
+yrewrite_canonical_url = Canonical URL
+
+yrewrite_forward = Forwards
+yrewrite_forward_no_domain_selected = Please select a domain
+yrewrite_forward_status = Status
+yrewrite_forward_active = active
+yrewrite_forward_inactive = inactive
+yrewrite_forward_url = requested URL
+yrewrite_forward_url_info = The URL must be entered without a <code>/</code> at the start and end, for example <code>"foo/bar"</code>. The variant with <code>/</code> is also forwarded automatically.<br> Optionally parameters can be given, for example <code>"foo/bar?x=1&y=2"</code>.
+yrewrite_forward_type = Forward to
+yrewrite_forward_type_article = Article
+yrewrite_forward_type_extern = custom link
+yrewrite_forward_type_media = Media
+yrewrite_forward_article_id = Article
+yrewrite_forward_clang = Language
+yrewrite_forward_extern = external, custom link
+yrewrite_forward_media = Media
+yrewrite_forward_add = Create forward
+yrewrite_forward_edit = Edit forward
+yrewrite_forward_method = What should happen
+yrewrite_forward_to = Forward to URL
+yrewrite_forward_direct = Direct call
+yrewrite_forward_added = Forward has been added
+yrewrite_forward_updated = Forward has been updated
+yrewrite_forward_deleted = Forward has been deleted
+yrewrite_forward_enter_url = Please enter a URL
+yrewrite_forward_domainurl_already_defined = This domain/URL combination already exists
+yrewrite_forward_move_method = Type of forward
+yrewrite_forward_movetype = Status code
+yrewrite_forward_301 = 301 - Moved Permanently (old URL no longer exists)
+yrewrite_forward_302 = 302 - Found
+yrewrite_forward_303 = 303 - See Other / normal forward
+yrewrite_forward_307 = 307 - Temporary Redirect
+yrewrite_forward_article_deleted = [article deleted]
+yrewrite_forward_article_offline = [article offline]
+yrewrite_forward_media_deleted = [media deleted]
+
+yrewrite_auto_redirect = Set automatic 301 redirects when an article is renamed or moved. (Should be disabled during development and enabled only in live operation.)
+yrewrite_auto_redirect_days = Number of days until automatic redirects become inactive.
+yrewrite_auto_redirect_days_info = Enter <code>0</code> to disable automatic deactivation.
+yrewrite_auto_redirects = Automatic redirects
+yrewrite_expiry_date = Deactivation date
+
+yrewrite_perm_url_edit = YRewrite: edit URL
+yrewrite_perm_seo_edit = YRewrite: edit SEO data
+
+yrewrite_settings = Settings
+yrewrite_settings_saved = Settings saved
+yrewrite_unicode_urls = Allow unicode characters in URLs (umlauts, Chinese/Cyrillic characters etc.)
+yrewrite_hide_url_block = Hide URL block
+yrewrite_hide_seo_block = Hide SEO block

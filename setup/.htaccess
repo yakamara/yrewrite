@@ -1,0 +1,99 @@
+# GRANT ACCESS TO THE PUBLIC DOCUMENT ROOT
+# The project-root .htaccess denies access by default; re-grant it here (REDAXO 6 public/ layout).
+<IfModule mod_authz_core.c>
+    # Apache 2.4+
+    Require all granted
+</IfModule>
+<IfModule !mod_authz_core.c>
+    # Apache 2.2 and earlier
+    Order allow,deny
+    Allow from all
+</IfModule>
+
+# DEFAULT CHARSET
+AddDefaultCharset utf-8
+
+# PREVENT DIRECTORY LISTING
+<IfModule mod_autoindex.c>
+	#Options -Indexes
+</IfModule>
+
+# ADD MIME TYPES
+<IfModule mod_mime.c>
+	AddType image/x-icon .ico
+	AddType image/svg+xml .svg
+	AddType video/ogg .ogv
+	AddType video/mp4 .mp4
+	AddType video/webm .webm
+	AddType audio/mpeg .mp3
+	AddType audio/ogg .ogg
+	AddType text/javascript .js
+	AddType text/javascript .mjs
+	AddType application/json .json
+	AddType application/xml .xml
+	AddType application/vnd.ms-fontobject .eot
+	AddType application/x-font-ttf .ttf
+	AddType font/font-woff .woff
+	AddType font/font-woff2 .woff2
+	AddType application/wasm .wasm
+	AddType font/opentype .otf
+</IfModule>
+
+# COMPRESS FILES
+<IfModule mod_deflate.c>
+	AddOutputFilterByType DEFLATE text/html
+	AddOutputFilterByType DEFLATE text/plain
+	AddOutputFilterByType DEFLATE text/xml
+	AddOutputFilterByType DEFLATE text/css
+	AddOutputFilterByType DEFLATE image/svg+xml
+	AddOutputFilterByType DEFLATE text/javascript
+	AddOutputFilterByType DEFLATE application/json
+	AddOutputFilterByType DEFLATE application/xml
+	AddOutputFilterByType DEFLATE application/vnd.ms-fontobject
+	AddOutputFilterByType DEFLATE application/x-font-ttf
+	AddOutputFilterByType DEFLATE font/opentype
+</IfModule>
+
+# REWRITING
+<IfModule mod_rewrite.c>
+    # ENABLE REWRITING
+    # for example.org/category/article/ instead of index.php?article_id=1
+    RewriteEngine On
+
+    # Workaround for RewriteBase
+    # Copied from https://github.com/symfony/symfony-standard/blob/master/web/.htaccess
+    RewriteCond %{REQUEST_URI}::$1 ^(/.+)/(.*)::\2$
+    RewriteRule ^(.*) - [E=BASE:%1]
+
+    # Sets the HTTP_AUTHORIZATION header removed by Apache
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # SEO
+    # example.org/sitemap.xml will be generated adhoc by the rewrite addon
+    # example.org/robots.txt will be generated adhoc by the rewrite addon
+    RewriteRule ^sitemap\.xml$ %{ENV:BASE}/index.php?rex_yrewrite_func=sitemap [NC,L]
+    RewriteRule ^robots\.txt$ %{ENV:BASE}/index.php?rex_yrewrite_func=robots [NC,L]
+
+    # REWRITE RULE FOR SEO FRIENDLY IMAGE MANAGER URLS
+    # Use example.org/media/media-type-profile/file.ext for beautified URLs and optimized images.
+    # IMPORTANT: These rule will also prevent subfolders and files of /media/
+    #            to be loaded directly. Use the /assets/ folder instead.
+    RewriteRule ^mediatypes/([^/]*)/([^/]*) %{ENV:BASE}/index.php?rex_media_type=$1&rex_media_file=$2
+    RewriteRule ^media/([^/]+)/(.*) %{ENV:BASE}/index.php?rex_media_type=$1&rex_media_file=$2&%{QUERY_STRING} [B]
+    RewriteRule ^media/(.*) %{ENV:BASE}/index.php?rex_media_type=yrewrite_default&rex_media_file=$1&%{QUERY_STRING} [B]
+
+    # existing files will not be overwritten
+    RewriteCond %{REQUEST_FILENAME} !-f
+
+    # existing folders will not be overwritten
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # treats symbolic links as pathname
+    RewriteCond %{REQUEST_FILENAME} !-l
+
+    RewriteCond %{REQUEST_URI} !^/?redaxo/.*$
+
+    RewriteRule ^(.*)$ %{ENV:BASE}/index.php?%{QUERY_STRING} [L]
+
+</IfModule>

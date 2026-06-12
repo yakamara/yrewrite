@@ -1,0 +1,40 @@
+{
+    "name": "yakamara/yrewrite",
+    "type": "redaxo-addon",
+    "description": "URL rewriting, multidomain and SEO for REDAXO (yrewrite successor)",
+    "keywords": ["redaxo", "redaxo-addon", "rewrite", "url", "seo", "multidomain", "sitemap"],
+    "license": "MIT",
+    "homepage": "https://github.com/yakamara/yrewrite",
+    "authors": [
+        {
+            "name": "Yakamara Media GmbH & Co. KG",
+            "homepage": "https://yakamara.de"
+        },
+        {
+            "name": "REDAXO team & community",
+            "homepage": "https://redaxo.org"
+        }
+    ],
+
+    "require": {
+        "php": "^8.5",
+        "redaxo/core": "^6.0@dev"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "Yakamara\\YRewrite\\": "src/"
+        }
+    },
+
+    "extra": {
+        "redaxo": {
+            "addon-class": "Yakamara\\YRewrite\\YRewriteAddon"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "symfony/runtime": true
+        }
+    }
+}
