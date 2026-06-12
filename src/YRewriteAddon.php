@@ -258,6 +258,40 @@ class YRewriteAddon extends Addon
     #[Override]
     public function uninstall(): void
     {
+        // drop the addon's own tables
+        foreach (['yrewrite_domain', 'yrewrite_alias', 'yrewrite_forward'] as $table) {
+            $t = Table::get(Core::getTable($table));
+            if ($t->exists()) {
+                $t->drop();
+            }
+        }
+
+        // remove the columns added to the article table
+        $article = Table::get(Core::getTable('article'));
+        $changed = false;
+        foreach ([
+            'yrewrite_url_type', 'yrewrite_url', 'yrewrite_redirection', 'yrewrite_title',
+            'yrewrite_description', 'yrewrite_image', 'yrewrite_changefreq', 'yrewrite_priority',
+            'yrewrite_index', 'yrewrite_canonical_url',
+        ] as $column) {
+            if ($article->hasColumn($column)) {
+                $article->removeColumn($column);
+                $changed = true;
+            }
+        }
+        if ($changed) {
+            $article->alter();
+        }
+
+        // remove the media manager type and its effects
+        $sql = Sql::factory();
+        $sql->setQuery('SELECT id FROM ' . Core::getTable('media_manager_type') . " WHERE name = 'yrewrite_seo_image'");
+        if ($sql->getRows() > 0) {
+            $typeId = (int) $sql->getValue('id');
+            Sql::factory()->setQuery('DELETE FROM ' . Core::getTable('media_manager_type_effect') . ' WHERE type_id = ?', [$typeId]);
+            Sql::factory()->setQuery('DELETE FROM ' . Core::getTable('media_manager_type') . ' WHERE id = ?', [$typeId]);
+        }
+
         $this->clearCache();
     }
 }
