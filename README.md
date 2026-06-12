@@ -87,12 +87,6 @@ Das AddOn legt unter *AddOns → YRewrite* folgende Reiter an:
 
 URL und SEO-Daten lassen sich zusätzlich direkt im Artikel-Editor in der Seitenleiste pflegen.
 
-## Dokumentation
-
-Eine ausführliche Referenz zur Verwendung (Templates, Extension Points, eigene URL-Schemes,
-NGINX-Konfiguration) liegt im Skill unter `.claude/skills/yrewrite/SKILL.md`. Architektur- und
-Entwicklungshinweise zur REDAXO-6-Portierung stehen in `.claude/skills/yrewrite/development.md`.
-
 ## Lizenz
 
 MIT. Siehe Angaben in der `composer.json`.
