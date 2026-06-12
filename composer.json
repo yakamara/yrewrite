@@ -1,7 +1,7 @@
 {
     "name": "yakamara/yrewrite",
     "type": "redaxo-addon",
-    "description": "URL rewriting, multidomain and SEO for REDAXO (yrewrite successor)",
+    "description": "yrewrite for REDAXO 6: URL rewriting, multidomain and SEO",
     "keywords": ["redaxo", "redaxo-addon", "rewrite", "url", "seo", "multidomain", "sitemap"],
     "license": "MIT",
     "homepage": "https://github.com/yakamara/yrewrite",

@@ -5,8 +5,8 @@ Aus `index.php?article_id=13&clang=1` wird zum Beispiel `/de/news/archiv/`. Zus√
 das AddOn die SEO-Ausgabe (Meta-Tags, Open Graph, Canonical, hreflang), eine `sitemap.xml` und
 eine `robots.txt` je Domain.
 
-Dies ist die REDAXO-6-Fassung (Branch `3.x`, Composer-Paket `yakamara/yrewrite`, Namespace
-`Yakamara\YRewrite`). Sie ist der Nachfolger des REDAXO-5-AddOns yrewrite.
+Das ist yrewrite f√ºr REDAXO 6 (Composer-Paket `yakamara/yrewrite`, Namespace `Yakamara\YRewrite`,
+Branch `3.x`).
 
 ## Funktionen
 

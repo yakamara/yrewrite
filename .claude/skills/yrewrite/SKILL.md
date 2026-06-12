@@ -11,8 +11,8 @@ description: >-
 
 # YRewrite (REDAXO 6)
 
-URL rewriting, multidomain and SEO addon for REDAXO 6. Successor of the REDAXO 5 `yrewrite`
-addon, fully namespaced. This addon converts `index.php?article_id=13&clang=1` into speaking
+yrewrite for REDAXO 6 — URL rewriting, multidomain and SEO, fully namespaced
+(`Yakamara\YRewrite`). This addon converts `index.php?article_id=13&clang=1` into speaking
 URLs like `/en/news/archive/`, supports multiple domains/languages, and provides SEO output.
 
 > **Maintaining or extending the addon?** Read [`development.md`](development.md) — REDAXO 6 addon
