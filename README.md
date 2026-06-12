@@ -48,7 +48,7 @@ YRewrite wird in REDAXO 6 über Composer eingebunden.
    die für das Rewriting nötig ist. Eine bereits vorhandene `.htaccess` vorher sichern.
 
    > Auf NGINX greift keine `.htaccess`. Dort die Rewrite-Regeln direkt im Server-Block
-   > hinterlegen (siehe `.claude/skills/yrewrite/SKILL.md`).
+   > hinterlegen.
 
 4. Mindestens eine Domain anlegen: **YRewrite → Domains → +**. Host, Startartikel und
    404-Artikel angeben. Ohne konfigurierte Domain nutzt YRewrite automatisch den aktuellen Host.
