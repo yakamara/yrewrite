@@ -53,23 +53,28 @@ class YRewriteAddon extends Addon
             }
 
             // if anything changes -> refresh PathFile
-            if (Core::isBackend()) {
-                $extensionPoints = [
-                    'CAT_ADDED', 'CAT_UPDATED', 'CAT_DELETED', 'CAT_STATUS', 'CAT_MOVED',
-                    'ART_ADDED', 'ART_UPDATED', 'ART_DELETED', 'ART_STATUS', 'ART_MOVED', 'ART_COPIED',
-                    'ART_META_UPDATED', 'ART_TO_STARTARTICLE', 'ART_TO_CAT', 'CAT_TO_ART',
-                    'CLANG_UPDATED',
-                ];
-                foreach ($extensionPoints as $extensionPoint) {
-                    Extension::register($extensionPoint, static function (ExtensionPoint $ep): void {
-                        $params = $ep->getParams();
-                        $params['subject'] = $ep->subject;
-                        $params['extension_point'] = $ep->name;
-                        YRewrite::generatePathFile($params);
-                    });
-                }
+            // Registered in every context, not only in the backend: structure changes can
+            // also be triggered headless (e.g. the api addon, console commands or cronjobs),
+            // and the path cache has to be refreshed there too. These extension points only
+            // fire when content actually changes, so there is no overhead on regular frontend
+            // requests.
+            $extensionPoints = [
+                'CAT_ADDED', 'CAT_UPDATED', 'CAT_DELETED', 'CAT_STATUS', 'CAT_MOVED',
+                'ART_ADDED', 'ART_UPDATED', 'ART_DELETED', 'ART_STATUS', 'ART_MOVED', 'ART_COPIED',
+                'ART_META_UPDATED', 'ART_TO_STARTARTICLE', 'ART_TO_CAT', 'CAT_TO_ART',
+                'CLANG_UPDATED',
+            ];
+            foreach ($extensionPoints as $extensionPoint) {
+                Extension::register($extensionPoint, static function (ExtensionPoint $ep): void {
+                    $params = $ep->getParams();
+                    $params['subject'] = $ep->subject;
+                    $params['extension_point'] = $ep->name;
+                    YRewrite::generatePathFile($params);
+                });
+            }
 
-                // per-article URL & SEO panels in the structure content sidebar
+            // Backend-only UI: per-article URL & SEO panels in the structure content sidebar.
+            if (Core::isBackend()) {
                 $user = Core::getUser();
                 if (!$this->getConfig('hide_url_block') && $user?->hasPerm('yrewrite[url]')) {
                     Extension::register('STRUCTURE_CONTENT_SIDEBAR', function (ExtensionPoint $ep): string {
