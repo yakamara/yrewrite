@@ -31,24 +31,29 @@ rex_extension::register('PACKAGES_INCLUDED', function ($params) {
     }
 
     // if anything changes -> refresh PathFile
-    if (rex::isBackend()) {
-        $extensionPoints = [
-            'CAT_ADDED',   'CAT_UPDATED',   'CAT_DELETED', 'CAT_STATUS',  'CAT_MOVED',
-            'ART_ADDED',   'ART_UPDATED',   'ART_DELETED', 'ART_STATUS',  'ART_MOVED', 'ART_COPIED',
-            'ART_META_UPDATED', 'ART_TO_STARTARTICLE', 'ART_TO_CAT', 'CAT_TO_ART',
-            /* 'CLANG_ADDED', */ 'CLANG_UPDATED', /* 'CLANG_DELETED', */
-            /* 'ARTICLE_GENERATED' */
-            // 'ALL_GENERATED'
-        ];
-        foreach ($extensionPoints as $extensionPoint) {
-            rex_extension::register($extensionPoint, static function (rex_extension_point $ep) {
-                $params = $ep->getParams();
-                $params['subject'] = $ep->getSubject();
-                $params['extension_point'] = $ep->getName();
-                rex_yrewrite::generatePathFile($params);
-            });
-        }
+    // Registered in every context, not only in the backend: structure changes can also
+    // be triggered by a frontend request (e.g. the api addon), and the path cache has to
+    // be refreshed there too. These extension points only fire when content actually
+    // changes, so there is no overhead on regular frontend requests.
+    $extensionPoints = [
+        'CAT_ADDED',   'CAT_UPDATED',   'CAT_DELETED', 'CAT_STATUS',  'CAT_MOVED',
+        'ART_ADDED',   'ART_UPDATED',   'ART_DELETED', 'ART_STATUS',  'ART_MOVED', 'ART_COPIED',
+        'ART_META_UPDATED', 'ART_TO_STARTARTICLE', 'ART_TO_CAT', 'CAT_TO_ART',
+        /* 'CLANG_ADDED', */ 'CLANG_UPDATED', /* 'CLANG_DELETED', */
+        /* 'ARTICLE_GENERATED' */
+        // 'ALL_GENERATED'
+    ];
+    foreach ($extensionPoints as $extensionPoint) {
+        rex_extension::register($extensionPoint, static function (rex_extension_point $ep) {
+            $params = $ep->getParams();
+            $params['subject'] = $ep->getSubject();
+            $params['extension_point'] = $ep->getName();
+            rex_yrewrite::generatePathFile($params);
+        });
+    }
 
+    // Backend-only UI guards (they build backend links and warning messages).
+    if (rex::isBackend()) {
         // prevent article deletion if used in domain settings
         rex_extension::register('ART_PRE_DELETED', static function (rex_extension_point $ep) {
             $warning = [];
