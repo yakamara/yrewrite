@@ -212,7 +212,7 @@ class rex_yrewrite
 
     public static function getPathsByDomain($domain)
     {
-        return self::$paths['paths'][$domain];
+        return self::$paths['paths'][$domain] ?? [];
     }
 
     public static function prepare()
