@@ -183,6 +183,8 @@ yrewrite_auto_redirect = Send automatic 301 redirects when articles are renamed 
 yrewrite_auto_redirect_days = Number of days until automatic redirects are deactivated.
 yrewrite_auto_redirect_days_info = Enter 0 to disable automatic deactivation
 yrewrite_auto_redirects = Automatic redirects
+yrewrite_force_lowercase = Always lowercase URLs (301 redirect)
+yrewrite_force_lowercase_info = URLs containing uppercase letters are redirected (301) to their lowercase form. Prevents duplicate content. Percent-encoded characters (e.g. umlauts) are left untouched.
 yrewrite_expiry_date = Date of deactivation
 
 perm_general_yrewrite[forward] = YRewrite: Redirects

@@ -185,6 +185,8 @@ yrewrite_auto_redirect = Automatische 301-Weiterleitungen setzen, wenn ein Artik
 yrewrite_auto_redirect_days = Anzahl Tage, bis automatische Weiterleitungen inaktiv werden.
 yrewrite_auto_redirect_days_info = <code>0</code> eintragen, um die automatische Deaktivierung auszuschalten.
 yrewrite_auto_redirects = Automatische Weiterleitungen
+yrewrite_force_lowercase = URLs immer in Kleinschreibung (301-Weiterleitung)
+yrewrite_force_lowercase_info = URLs mit Großbuchstaben werden per 301 auf die klein geschriebene Variante weitergeleitet. Vermeidet Duplicate Content. Prozent-kodierte Zeichen (z.&nbsp;B. Umlaute) bleiben unverändert.
 yrewrite_expiry_date = Deaktivierungsdatum
 
 perm_general_yrewrite[forward] = YRewrite: Weiterleitungen
