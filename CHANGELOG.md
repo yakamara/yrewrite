@@ -1,6 +1,28 @@
 Changelog
 =========
 
+Version 2.12.1 – 16.08.2026
+---------------------------
+
+Reines Bugfix-Release. Es ändert keine generierten URLs und keine
+Weiterleitungen, ein Update ist damit ohne SEO-Auswirkungen möglich.
+
+### Bugs
+
+* `getPathsByDomain()`: Warning bei Domains ohne eigene Pfade vermieden (@tbaddade)
+* `normalize()`: Deprecations bei leerem oder `null`-Wert vermieden (@TobiasKrais)
+* Hilfe-Seite war bei Installation in einem Unterverzeichnis oder mit umbenanntem Backend-Ordner nicht aufrufbar (@Koala, #550)
+* Update von älteren Versionen brach mit `Class "rex_yrewrite" not found` ab, wenn das AddOn dabei nicht aktiviert war (#558)
+* Fatal Error beim Erzeugen automatischer Weiterleitungen, wenn im alten Pfad-Cache eine nicht mehr vorhandene Domain stand
+* Deprecation `trim(): Passing null to parameter #1` in der Sitemap behoben (@Norbert Micheel, #570)
+* Warnings „undefined array key" behoben (@Norbert Micheel, #543)
+
+### Sonstiges
+
+* `301` ist jetzt Standard bei der Art der Weiterleitung (@godsdog)
+* Entwicklungs-Tools und Code-Style aktualisiert (@gharlan)
+
+
 Version 2.12.0 – 26.06.2025
 ---------------------------
 
