@@ -104,13 +104,17 @@ class rex_yrewrite_scheme
     }
 
     /**
-     * @param string $string
-     * @param int    $clang
+     * @param string|null $string
+     * @param int         $clang
      *
      * @return string
      */
     public function normalize($string, $clang = 1)
     {
+        if (null === $string || '' === $string) {
+            return '';
+        }
+
         if (rex_addon::get('yrewrite')->getConfig('unicode_urls')) {
             $string = str_replace(["'", '’', 'ʻ'], '', $string);
             $string = preg_replace('/[^\p{L&}\p{Lo}\p{M}\p{N}\p{Sc}]+/u', '-', $string);

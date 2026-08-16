@@ -212,7 +212,7 @@ class rex_yrewrite
 
     public static function getPathsByDomain($domain)
     {
-        return self::$paths['paths'][$domain];
+        return self::$paths['paths'][$domain] ?? [];
     }
 
     public static function prepare()
@@ -393,6 +393,12 @@ class rex_yrewrite
         if ($old_paths) {
             foreach ($old_paths['paths'] as $domain_name => $old_article_paths) {
                 $domain = self::getDomainByName($domain_name);
+
+                // Domain aus dem alten Pfad-Cache existiert nicht mehr (z.B. umbenannt oder gelöscht)
+                if (null === $domain) {
+                    continue;
+                }
+
                 $domain_id = $domain->getId();
                 $expiry_date = null;
                 if ($domain->getAutoRedirectDays()) {

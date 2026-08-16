@@ -51,7 +51,7 @@ if (rex_version::compare($this->getVersion(), '2.7-dev', '<=')) {
         ->setValue('clang_start_hidden', 1)
         ->update();
 
-    rex_yrewrite::deleteCache();
+    rex_package::require('yrewrite')->clearCache();
 }
 
 if (rex_version::compare($this->getVersion(), '2.9-dev', '<=')) {
