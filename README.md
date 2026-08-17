@@ -126,6 +126,19 @@ Unter Weiterleitungen können URLs definiert werden, die dann auf einen bestimmt
 
 > **Tipp**: Damit lässt sich auch ein Artikel oder eine Kategorie zu einem gänzlich anderen URI-Protokoll ändern, bspw. `tel:`, `mailto:` u.a. Diese werden auch an anderer Stelle, bspw. von der `rex_navigation::factory()`, berücksichtigt.
 
+## Sitemap pro Sprache oder Domain
+
+Neben der `sitemap.xml`, die alle Sprachen der aufgerufenen Domain enthält, lassen sich eigene Sitemaps für einzelne Sprachen oder Domains bereitstellen. Dazu werden in der `.htaccess` weitere Regeln ergänzt, die die Parameter `rex_yrewrite_param_clang` bzw. `rex_yrewrite_param_domain` mitgeben:
+
+```apache
+RewriteRule ^sitemap-de\.xml$ %{ENV:BASE}/index.php?rex_yrewrite_func=sitemap&rex_yrewrite_param_clang=1 [NC,L]
+RewriteRule ^sitemap-en\.xml$ %{ENV:BASE}/index.php?rex_yrewrite_func=sitemap&rex_yrewrite_param_clang=2 [NC,L]
+```
+
+Damit liefert `https://example.org/sitemap-en.xml` ausschließlich die URLs der Sprache mit der ID `2`. Die Regeln müssen **vor** der Regel für `sitemap.xml` stehen.
+
+> **Hinweis:** Die zusätzlichen Sitemaps werden von Suchmaschinen nicht automatisch gefunden. Sie sollten in der `robots.txt` der Domain aufgeführt oder in der Google Search Console eingetragen werden.
+
 ## Weitere Schritte
 
 Die `sitemap.xml` kann pro Domain bspw. in der Google Search Console eingetragen werden, um die korrekte Indexierung der Domain(s) und deren Seiten zu überprüfen.
