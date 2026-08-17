@@ -19,17 +19,6 @@ $article_id = $params['article_id'];
 $clang = $params['clang'];
 $ctype = $params['ctype'];
 
-$select_priority = [];
-$select_priority[] = rex_i18n::msg('yrewrite_priority_auto') . '=';
-foreach (rex_yrewrite_seo::$priority as $priority) {
-    $select_priority[] = rex_i18n::msg('yrewrite_priority_' . str_replace('.', '_', $priority)) . '=' . $priority;
-}
-
-$select_changefreq = [];
-foreach (rex_yrewrite_seo::$changefreq as $changefreq) {
-    $select_changefreq[] = rex_i18n::msg('yrewrite_changefreq_' . $changefreq) . '=' . $changefreq;
-}
-
 $index_setting = [];
 $index_setting[] = rex_i18n::msg('yrewrite_index_status') . '=0';
 $index_setting[] = rex_i18n::msg('yrewrite_index_index') . '=1';
@@ -55,8 +44,10 @@ $yform->setValueField('text', ['name' => 'yrewrite_title', 'label' => rex_i18n::
 $yform->setValueField('textarea', ['yrewrite_description', rex_i18n::msg('yrewrite_seodescription'), 'rows' => 3]);
 $yform->setValueField('be_media', ['yrewrite_image', rex_i18n::msg('yrewrite_seoimage'), '1', '0', 'general', 'jpg,gif,png,jpeg,webp']);
 
-$yform->setValueField('choice', ['yrewrite_changefreq', rex_i18n::msg('yrewrite_changefreq'), implode(',', $select_changefreq), '', '', rex_yrewrite_seo::$changefreq_default]);
-$yform->setValueField('choice', ['yrewrite_priority', rex_i18n::msg('yrewrite_priority'), implode(',', $select_priority), '', '', rex_yrewrite_seo::$priority_default]);
+// Die Felder yrewrite_changefreq und yrewrite_priority werden nicht mehr angeboten:
+// <changefreq> und <priority> stehen seit 2.13.0 nicht mehr in der Sitemap, die Werte
+// hätten also keine Wirkung. Spalten und die Properties von rex_yrewrite_seo bleiben
+// erhalten, vorhandene Werte werden beim Speichern nicht angetastet.
 
 $yform->setValueField('choice', ['yrewrite_index', rex_i18n::msg('yrewrite_index'), implode(',', $index_setting), '', '', rex_yrewrite_seo::$index_setting_default]);
 
