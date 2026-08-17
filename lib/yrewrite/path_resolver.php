@@ -68,6 +68,18 @@ class rex_yrewrite_path_resolver
 
         $url = ltrim($url, '/');
 
+        // Weiterleitungen können auch auf einen leeren Pfad mit Parametern zeigen,
+        // z. B. "?page_id=29" aus einem Wordpress-Relaunch. Ohne diese Prüfung würde
+        // die Startseite ausgeliefert (oder auf die Startsprache umgeleitet), bevor die
+        // Weiterleitungsliste überhaupt ausgewertet wird. Eine bewusst angelegte
+        // Weiterleitung hat daher Vorrang vor der automatischen Sprachweiterleitung.
+        // Nur bei vorhandenem Query-String prüfen, damit der parameterlose Aufruf der
+        // Startseite unverändert bleibt und die Liste dort gar nicht geladen wird.
+        // getForward() leitet selbst um und beendet.
+        if ('' === $url && '' !== $params) {
+            rex_yrewrite_forward::getForward(['domain' => $domain, 'url' => $url, 'subject' => '']);
+        }
+
         if ('' === $url && $domain->isStartClangAuto()) {
             $startClang = $this->resolveAutoStartClang($domain);
 

@@ -57,6 +57,15 @@ class rex_yrewrite_forward
                 continue;
             }
 
+            // Ein leerer Pfad allein ist kein Treffer: Nur zusammen mit Parametern
+            // (z. B. "?page_id=29") ist der Eintrag gemeint. Ohne diese Bedingung würde
+            // ein Datensatz ohne Pfad und ohne Parameter — über das Formular nicht
+            // anlegbar, per Datenbank-Import aber möglich — jeden Aufruf der Startseite
+            // umleiten.
+            if ('' === $pUrl && !($p['params'] ?? [])) {
+                continue;
+            }
+
             if (count($p['params'] ?? []) <= $matchingParams) {
                 continue;
             }

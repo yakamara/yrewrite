@@ -39,7 +39,9 @@ if ('' != $func) {
     $yform->setValueField('choice', ['status', $this->i18n('forward_status'), $this->i18n('forward_active') . '=1,' . $this->i18n('forward_inactive') . '=0']);
     $yform->setValueField('choice', ['domain_id', $this->i18n('domain'), 'select id,domain as name from ' . rex::getTable('yrewrite_domain') . ' ORDER BY name']);
     $yform->setValueField('text', ['url', $this->i18n('forward_url'), 'notice' => '<small>' . $this->i18n('forward_url_info') . '</small>']);
-    $yform->setValidateField('preg_match', ['url', '@^[%_\.+\-\w]+[/%_\.+\,\-\w]*(?<!\/)(?:\?.+)?$@u', $this->i18n('warning_chars')]);
+    // Entweder ein Pfad (optional mit Query) oder ausschließlich ein Query-String
+    // wie "?page_id=29", z. B. für Weiterleitungen alter Wordpress-URLs.
+    $yform->setValidateField('preg_match', ['url', '@^(?:[%_\.+\-\w]+[/%_\.+\,\-\w]*(?<!\/)(?:\?.+)?|\?.+)$@u', $this->i18n('warning_chars')]);
     // $this->i18n('warning_noslash')
     $yform->setValidateField('size_range', ['url', 1, 255, $this->i18n('warning_nottolong')]);
     $yform->setValidateField('empty', ['url', $this->i18n('forward_enter_url')]);
