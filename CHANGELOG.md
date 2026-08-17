@@ -17,7 +17,7 @@ Version 2.13.0 – 17.08.2026
 
 ### Verhaltensänderung
 
-* `<changefreq>` und `<priority>` werden nicht mehr in die Sitemap geschrieben — Google wertet beide Angaben seit Jahren nicht mehr aus (@tyrant88, #277). Die Metafelder am Artikel bleiben erhalten, ihre Werte haben aber keine Wirkung mehr.
+* `<changefreq>` und `<priority>` werden nicht mehr in die Sitemap geschrieben — Google wertet beide Angaben seit Jahren nicht mehr aus (@tyrant88, #277). Die beiden Auswahlfelder entfallen deshalb im SEO-Block des Artikels. Die Datenbankspalten und die Properties von `rex_yrewrite_seo` bleiben erhalten, vorhandene Werte werden beim Speichern nicht angetastet.
 
 
 Version 2.12.1 – 16.08.2026
