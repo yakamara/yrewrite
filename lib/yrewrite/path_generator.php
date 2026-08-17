@@ -156,10 +156,12 @@ class rex_yrewrite_path_generator
         }
 
         if ($redirection instanceof rex_structure_element) {
+            [$_articleId, $hash] = array_pad(explode('#', $article->getValue('yrewrite_redirection'), 2), 2, null);
             $this->redirections[$domainName][$articleId][$clangId] = [
                 'id' => $redirection->getId(),
                 'clang' => $redirection->getClangId(),
                 'path' => $url,
+                'hash' => $hash,
             ];
 
             unset($this->paths[$domainName][$articleId][$clangId]);
