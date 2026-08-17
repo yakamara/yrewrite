@@ -67,3 +67,10 @@ if (rex_version::compare($this->getVersion(), '2.9-dev', '<=')) {
         ->setValue('expiry_date', null)
         ->update();
 }
+
+if (rex_version::compare($this->getVersion(), '2.12.1', '<=')) {
+    // Die twitter:*-Tags sind ab 2.13.0 abschaltbar und bei neuen Installationen
+    // standardmäßig aus. Bestehende Installationen behalten ihr bisheriges Verhalten.
+    // install.php läuft vorher und hat den Wert auf false gesetzt.
+    $this->setConfig('yrewrite_twitter_tags', true);
+}
