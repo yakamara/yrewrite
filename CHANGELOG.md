@@ -1,6 +1,25 @@
 Changelog
 =========
 
+Version 2.13.0 – 17.08.2026
+---------------------------
+
+### Neu
+
+* Sitemaps für einzelne Sprachen oder Domains lassen sich über eigene `.htaccess`-Regeln mit den Parametern `rex_yrewrite_param_clang` bzw. `rex_yrewrite_param_domain` bereitstellen — siehe README (@tyrant88, #547)
+* Die `twitter:`-Meta-Tags sind unter *Setup* abschaltbar. Neue Installationen starten ohne, bestehende behalten sie (@dpf-dd, #619)
+
+### Bugs
+
+* Der Pfad-Cache wird jetzt auch bei Struktur-Änderungen aus einem Frontend-Request regeneriert, etwa über das api-AddOn. Bisher lieferte ein so angelegter Artikel einen 404, bis der Cache manuell erneuert wurde (#613)
+* Weiterleitungen lassen sich für URLs ohne Pfad anlegen und greifen dort auch, z. B. `?page_id=29` nach einem Wordpress-Relaunch (@aeberhard, #621)
+* `yrewrite_hide_seo_block` erhielt bei der Installation keinen Standardwert
+
+### Verhaltensänderung
+
+* `<changefreq>` und `<priority>` werden nicht mehr in die Sitemap geschrieben — Google wertet beide Angaben seit Jahren nicht mehr aus (@tyrant88, #277). Die Metafelder am Artikel bleiben erhalten, ihre Werte haben aber keine Wirkung mehr.
+
+
 Version 2.12.1 – 16.08.2026
 ---------------------------
 

@@ -81,9 +81,9 @@ class rex_yrewrite_seo
                 }
                 $tagsOg['og:image:type'] = '<meta property="og:image:type" content="' . rex_escape($media->getType()) . '">';
             }
-            $tagsOg['twitter:image'] = '<meta name="twitter:image" content="' . rtrim($this->domain->getUrl(), '/') . rex_media_manager::getUrl('yrewrite_seo_image', $image) . '">';
+            $tagsTwitter['twitter:image'] = '<meta name="twitter:image" content="' . rtrim($this->domain->getUrl(), '/') . rex_media_manager::getUrl('yrewrite_seo_image', $image) . '">';
             if ($media && $media->getTitle()) {
-                $tagsOg['twitter:image:alt'] = '<meta name="twitter:image:alt" content="' . rex_escape($media->getTitle()) . '">';
+                $tagsTwitter['twitter:image:alt'] = '<meta name="twitter:image:alt" content="' . rex_escape($media->getTitle()) . '">';
             }
         }
 
@@ -109,7 +109,14 @@ class rex_yrewrite_seo
             $tags['hreflang:' . $code] = '<link rel="alternate" hreflang="' . $code . '" href="' . $url . '">';
         }
 
-        $tags += $tagsOg + $tagsTwitter;
+        $tags += $tagsOg;
+
+        // Die twitter:*-Tags sind abschaltbar. Bestehende Installationen behalten sie,
+        // neue Installationen starten ohne (siehe rex_yrewrite_settings).
+        if (rex_addon::get('yrewrite')->getConfig('yrewrite_twitter_tags')) {
+            $tags += $tagsTwitter;
+        }
+
         $tags = rex_extension::registerPoint(new rex_extension_point('YREWRITE_SEO_TAGS', $tags));
         return implode("\n", $tags);
     }

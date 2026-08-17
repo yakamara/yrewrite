@@ -30,6 +30,7 @@ class rex_yrewrite_settings
             $addon->setConfig('unicode_urls', rex_post('yrewrite_unicode_urls', 'bool'));
             $addon->setConfig('yrewrite_hide_url_block', rex_post('yrewrite_hide_url_block', 'bool'));
             $addon->setConfig('yrewrite_hide_seo_block', rex_post('yrewrite_hide_seo_block', 'bool'));
+            $addon->setConfig('yrewrite_twitter_tags', rex_post('yrewrite_twitter_tags', 'bool'));
 
             rex_yrewrite::deleteCache();
 
@@ -59,6 +60,10 @@ class rex_yrewrite_settings
             [
                 'label' => '<label for="yrewrite-hide-seo-block">' . $addon->i18n('yrewrite_hide_seo_block') . '</label>',
                 'field' => '<input type="checkbox" id="yrewrite-hide-seo-block" name="yrewrite_hide_seo_block" value="1" ' . ($addon->getConfig('yrewrite_hide_seo_block') ? ' checked="checked"' : '') . ' />',
+            ],
+            [
+                'label' => '<label for="yrewrite-twitter-tags">' . $addon->i18n('yrewrite_twitter_tags') . '</label>',
+                'field' => '<input type="checkbox" id="yrewrite-twitter-tags" name="yrewrite_twitter_tags" value="1" ' . ($addon->getConfig('yrewrite_twitter_tags') ? ' checked="checked"' : '') . ' />',
             ],
         ];
 
@@ -103,8 +108,13 @@ class rex_yrewrite_settings
         if (!$addon->hasConfig('yrewrite_hide_url_block')) {
             $addon->setConfig('yrewrite_hide_url_block', false);
         }
-        if (!$addon->hasConfig('yrewrite_hide_url_block')) {
-            $addon->setConfig('yrewrite_hide_url_block', false);
+        if (!$addon->hasConfig('yrewrite_hide_seo_block')) {
+            $addon->setConfig('yrewrite_hide_seo_block', false);
+        }
+        // Neue Installationen starten ohne twitter:*-Tags. Bestehende Installationen
+        // behalten sie, siehe update.php.
+        if (!$addon->hasConfig('yrewrite_twitter_tags')) {
+            $addon->setConfig('yrewrite_twitter_tags', false);
         }
     }
 }
