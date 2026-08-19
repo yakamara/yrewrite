@@ -62,6 +62,24 @@ class rex_yrewrite_path_resolver
             return;
         }
 
+        // force lowercase urls (seo duplicate content normalization)
+        // media (/media/...) and asset (/assets/...) requests never reach this resolver:
+        // media_manager intercepts rex_media_type on PACKAGES_INCLUDED (EARLY) and exits before
+        // rex_yrewrite::prepare() runs, and existing files are served directly by the web server.
+        // so media filenames (which are case-sensitive) are never lowercased here.
+        if ($domain->isForceLowercase()) {
+            // detect uppercase in a percent-encoding-safe way: strip %XX octets first, so encoded
+            // umlauts (e.g. "%C3%BC") do not trigger a spurious redirect.
+            $pathWithoutEscapes = preg_replace('/%[0-9A-Fa-f]{2}/', '', $url);
+            if (preg_match('/[A-Z]/', $pathWithoutEscapes)) {
+                // lowercase real ascii letters only, leave %XX escapes untouched.
+                $lowerUrl = preg_replace_callback('/%[0-9A-Fa-f]{2}|[A-Z]+/', static function ($m) {
+                    return '%' === $m[0][0] ? $m[0] : strtolower($m[0]);
+                }, $url);
+                $this->redirect($currentScheme . '://' . $host, $lowerUrl, $params);
+            }
+        }
+
         if (str_starts_with($url, $domain->getPath())) {
             $url = substr($url, strlen($domain->getPath()));
         }

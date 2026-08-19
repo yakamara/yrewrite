@@ -521,7 +521,8 @@ class rex_yrewrite
                     . $domain['id'] . ','
                     . $domain['auto_redirect'] . ','
                     . $domain['auto_redirect_days'] . ','
-                    . ($domain['clang_start_auto'] ? 'true' : 'false')
+                    . ($domain['clang_start_auto'] ? 'true' : 'false') . ','
+                    . ($domain['force_lowercase'] ? 'true' : 'false')
                     . '));';
             }
         }
