@@ -73,7 +73,7 @@ yrewrite_no_not_found_id_defined = Bitte einen 404-Artikel auswählen
 
 yrewrite_warning_noslash = Bitte in der URL kein <code/</code> am Anfang und am Ende
 yrewrite_warning_nottolong = Die URL darf nicht länger als 250 Zeichen sein
-yrewrite_warning_chars = Die URL ist nicht korrekt. Schreibweise beachten. Nur "a-z/0-9 -", kein / am Anfang und am Ende
+yrewrite_warning_chars = Die URL ist nicht korrekt. Schreibweise beachten. Nur "a-z/0-9 -", kein / am Anfang und am Ende. Umlaute und andere Buchstaben sind nur erlaubt, wenn in den Einstellungen "Unicode-URLs" aktiv ist.
 yrewrite_warning_urlexists = Diese URL existiert bereits bei Artikel mit der id={0}
 yrewrite_warning_redirect_to_self = Der Artikel kann nicht auf sich selbst weiterleiten.
 yrewrite_warning_otherarticle = Zum anderen Artikel

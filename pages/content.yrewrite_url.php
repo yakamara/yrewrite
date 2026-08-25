@@ -94,7 +94,15 @@ if ($isStartarticle) {
         if ('' == $yrewrite_url) {
             return false;
         }
-        return !preg_match('/^[%#_\.+\-\/a-zA-Z0-9]+$/', $yrewrite_url);
+        // Sind Unicode-URLs aktiv, erzeugt rex_yrewrite_scheme::normalize() auch
+        // Pfade mit Buchstaben außerhalb von a-z (Umlaute, Akzente, andere Schriften).
+        // Die Eingabeprüfung muss dieselben Zeichen zulassen, sonst lässt sich eine
+        // eigene URL nicht eintragen, die yrewrite automatisch so gebildet hätte.
+        $pattern = rex_addon::get('yrewrite')->getConfig('unicode_urls')
+            ? '/^[%#_\.+\-\/\p{L}\p{M}\p{N}\p{Sc}]+$/u'
+            : '/^[%#_\.+\-\/a-zA-Z0-9]+$/';
+
+        return !preg_match($pattern, $yrewrite_url);
     }, 'params' => [], 'message' => rex_i18n::msg('yrewrite_warning_chars')]);
 
     $yform->setValidateField('customfunction', ['name' => 'yrewrite_url', 'function' => static function ($func, $yrewrite_url, $params, $field) {

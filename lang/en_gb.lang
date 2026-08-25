@@ -72,7 +72,7 @@ yrewrite_no_not_found_id_defined = Please select a 404 article
 
 yrewrite_warning_noslash = Do not use / on beginning or end
 yrewrite_warning_nottolong = The URL is not allowed to be longer then 250 characters
-yrewrite_warning_chars = The URL is invalid. Consider your characters. Only a-z 0-9 -
+yrewrite_warning_chars = The URL is invalid. Consider your characters. Only a-z 0-9 -. Other letters are allowed only if "Unicode URLs" is enabled in the settings.
 yrewrite_warning_urlexists = URL exists already {0}
 yrewrite_warning_redirect_to_self = The article can not redirect to itself.
 yrewrite_warning_otherarticle = To different article
