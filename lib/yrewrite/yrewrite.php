@@ -110,7 +110,50 @@ class rex_yrewrite
         if (isset(self::$domainsByName[$name])) {
             return self::$domainsByName[$name];
         }
+
+        // Die Domains liegen unter ihrem normalisierten Namen (Host, ggf. mit Port).
+        // Ein Aufruf mit "https://domain.de" oder "domain.de/" soll denselben Eintrag
+        // finden, deshalb wird die Eingabe genauso zerlegt wie beim Erzeugen des Caches.
+        $parts = self::parseDomainName((string) $name);
+
+        if (null !== $parts && isset(self::$domainsByName[$parts['name']])) {
+            return self::$domainsByName[$parts['name']];
+        }
+
         return null;
+    }
+
+    /**
+     * Zerlegt einen eingetragenen Domainnamen in Name, Scheme und Pfad.
+     *
+     * Der Name wird auf Host und ggf. Port reduziert; Scheme und Pfad sind optional.
+     * Damit ergeben "domain.de", "https://domain.de" und "domain.de/" denselben Namen.
+     *
+     * @return array{name: string, scheme: string|null, path: string}|null null, wenn kein Host ermittelbar ist
+     */
+    private static function parseDomainName(string $domain): ?array
+    {
+        if (!str_contains($domain, '//')) {
+            $domain = '//' . $domain;
+        }
+
+        $parts = parse_url($domain);
+
+        if (!is_array($parts) || !isset($parts['host']) || '' === $parts['host']) {
+            return null;
+        }
+
+        $name = $parts['host'];
+        if (isset($parts['port'])) {
+            $name .= ':' . $parts['port'];
+        }
+
+        $path = '/';
+        if (isset($parts['path'])) {
+            $path = rtrim($parts['path'], '/') . '/';
+        }
+
+        return ['name' => $name, 'scheme' => $parts['scheme'] ?? null, 'path' => $path];
     }
 
     /**
@@ -490,24 +533,19 @@ class rex_yrewrite
                 continue;
             }
 
-            $name = (string) $domain['domain'];
-            if (!str_contains($name, '//')) {
-                $name = '//' . $name;
+            $parts = self::parseDomainName((string) $domain['domain']);
+
+            if (null === $parts) {
+                continue;
             }
-            $parts = parse_url($name);
-            $name = $parts['host'];
-            if (isset($parts['port'])) {
-                $name .= ':' . $parts['port'];
-            }
-            $path = '/';
-            if (isset($parts['path'])) {
-                $path = rtrim($parts['path'], '/') . '/';
-            }
+
+            $name = $parts['name'];
+            $path = $parts['path'];
 
             if ($domain['start_id'] > 0 && $domain['notfound_id'] > 0) {
                 $content .= "\n" . 'rex_yrewrite::addDomain(new rex_yrewrite_domain('
                     . '"' . $name . '", '
-                    . (isset($parts['scheme']) ? '"' . $parts['scheme'] . '"' : 'null') . ', '
+                    . (null !== $parts['scheme'] ? '"' . $parts['scheme'] . '"' : 'null') . ', '
                     . '"' . $path . '", '
                     . $domain['mount_id'] . ', '
                     . $domain['start_id'] . ', '
