@@ -333,6 +333,56 @@ rex_extension::register('YREWRITE_SEO_TAGS', function(rex_extension_point $ep) {
 
 ```
 
+## Nicht gefundene Seiten mitschreiben
+
+`YREWRITE_NOT_FOUND` meldet Aufrufe, die zu keinem Artikel führen — etwa für ein eigenes 404-Log oder um daraus Weiterleitungen vorzuschlagen. Der Extension Point wird erst beim Ausliefern der Seite ausgelöst und nur dann, wenn der Status zu diesem Zeitpunkt noch 404 ist. Beantwortet ein anderes AddOn den Aufruf mit einer eigenen Route, wird er nicht ausgelöst; `sitemap.xml` und `robots.txt` ebenfalls nicht.
+
+`query` enthält den Query-String samt `?`, sonst einen leeren String. Der Subject wird nicht ausgewertet.
+
+```php
+rex_extension::register('YREWRITE_NOT_FOUND', function (rex_extension_point $ep) {
+    $params = $ep->getParams();
+
+    rex_logger::factory()->log('404', $params['url'] . $params['query'], [], null, null);
+    // $params['domain'] ist das rex_yrewrite_domain-Objekt
+});
+```
+
+## Sitemap-Einträge erweitern
+
+`YREWRITE_SITEMAP_URL` wird je Sitemap-Eintrag ausgelöst und erlaubt eigene Tags innerhalb von `<url>`, zum Beispiel `<video:video>` oder eine PageMap. Der Subject ist der Eintrag **ohne** das schließende `</url>` — angehängte Tags landen also innerhalb des Elements.
+
+Ist kein Listener registriert, wird der Extension Point nicht aufgerufen; bei mehreren Tausend Einträgen entsteht dadurch kein Aufwand.
+
+```php
+rex_extension::register('YREWRITE_SITEMAP_URL', function (rex_extension_point $ep) {
+    $params = $ep->getParams();
+    $article = $params['article'];   // rex_article
+    // $params['domain'], $params['clang'], $params['path'] stehen ebenfalls bereit
+
+    if (!$article->getValue('art_video_url')) {
+        return $ep->getSubject();
+    }
+
+    return $ep->getSubject() . "\n\t" . '<video:video><video:content_loc>'
+        . rex_escape($article->getValue('art_video_url'))
+        . '</video:content_loc></video:video>';
+});
+```
+
+Für die gesamte Sitemap einer Domain gibt es weiterhin `YREWRITE_DOMAIN_SITEMAP`, für die Sitemap insgesamt `YREWRITE_SITEMAP`. Beide erhalten das Array der fertigen Einträge.
+
+## Änderungen an der Artikel-URL mitbekommen
+
+`YREWRITE_URL_UPDATED` wird ausgelöst, nachdem im Artikel der URL-Typ oder die eigene URL gespeichert wurde. Nützlich für AddOns, die eigene URLs von dieser Adresse ableiten. Der Subject wird nicht ausgewertet.
+
+```php
+rex_extension::register('YREWRITE_URL_UPDATED', function (rex_extension_point $ep) {
+    $params = $ep->getParams();
+    // $params['id'], $params['clang'], $params['url_type'], $params['url']
+});
+```
+
 ## Navigation Factory in Abhängigkeit der gewählten Domain
 
 Weitere Informaionen zur Navigation Factory des REDAXO-Cores in der API-Dokumentation unter https://REDAXO.org/api/master/ und bei den Tricks von FriendsOfREDAXO: https://github.com/friendsofREDAXO/tricks/

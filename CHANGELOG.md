@@ -8,12 +8,18 @@ Version 2.13.0 – 17.08.2026
 
 * Sitemaps für einzelne Sprachen oder Domains lassen sich über eigene `.htaccess`-Regeln mit den Parametern `rex_yrewrite_param_clang` bzw. `rex_yrewrite_param_domain` bereitstellen — siehe README (@tyrant88, #547)
 * Die `twitter:`-Meta-Tags sind unter *Setup* abschaltbar. Neue Installationen starten ohne, bestehende behalten sie (@dpf-dd, #619)
+* Neuer Extension Point `YREWRITE_NOT_FOUND` für eigenes 404-Logging. Er wird erst beim Ausliefern der Seite ausgelöst und nur, wenn der Status dann noch 404 ist — Aufrufe, die ein anderes AddOn mit einer eigenen Route beantwortet, sowie `sitemap.xml` und `robots.txt` lösen ihn nicht aus (@phoebusryan, #168)
+* Neuer Extension Point `YREWRITE_SITEMAP_URL` je Sitemap-Eintrag, um eigene Tags innerhalb von `<url>` zu ergänzen. Ohne registrierten Listener wird er nicht aufgerufen (@michael-kreatif, #505)
+* Neuer Extension Point `YREWRITE_URL_UPDATED`, nachdem im Artikel der URL-Typ oder die eigene URL gespeichert wurde (@tbaddade, #281)
+* Nach dem Speichern einer eigenen URL weist ein Hinweis darauf hin, dass der Link *Artikel anzeigen* erst nach dem Neuladen der Seite auf die neue URL zeigt (@anveno, #361)
 
 ### Bugs
 
 * Der Pfad-Cache wird jetzt auch bei Struktur-Änderungen aus einem Frontend-Request regeneriert, etwa über das api-AddOn. Bisher lieferte ein so angelegter Artikel einen 404, bis der Cache manuell erneuert wurde (#613)
 * Weiterleitungen lassen sich für URLs ohne Pfad anlegen und greifen dort auch, z. B. `?page_id=29` nach einem Wordpress-Relaunch (@aeberhard, #621)
 * `yrewrite_hide_seo_block` erhielt bei der Installation keinen Standardwert
+* Eigene Artikel-URLs dürfen Umlaute und andere Buchstaben enthalten, wenn *Unicode-URLs* aktiv ist. Die Eingabeprüfung ließ das bisher unabhängig von der Einstellung nicht zu, obwohl automatisch erzeugte URLs solche Zeichen enthalten (@iceman-fx, #573)
+* `rex_yrewrite::getDomainByName()` findet die Domain jetzt auch, wenn der Name mit Protokoll oder abschließendem Schrägstrich übergeben wird, etwa `https://example.org/` (@iceman-fx, #556)
 
 ### Verhaltensänderung
 
