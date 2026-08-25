@@ -261,13 +261,20 @@ class rex_yrewrite
     public static function prepare()
     {
         if (rex::isFrontend() && 'get' === rex_request_method() && !rex_get('rex-api-call') && $articleId = rex_get('article_id', 'int')) {
-            $params = $_GET;
-            $article = rex_article::get((int) $params['article_id'], (int) ($params['clang'] ?? 0) ?: rex_clang::getCurrentId());
-            if ($article instanceof rex_article) {
-                unset($params['article_id']);
-                unset($params['clang']);
-                $url = self::getFullUrlByArticleId($articleId, null, $params, '&');
-                rex_response::sendRedirect($url, rex_response::HTTP_MOVED_PERMANENTLY);
+            // Für einzelne Artikel kann die Weiterleitung auf die sprechende URL
+            // unterbleiben, etwa wenn eine eigene RewriteRule bewusst auf
+            // "?article_id=..." zeigt. Nur der Redirect entfällt — die übrige
+            // Auflösung unten läuft weiter, damit Domain, Startartikel,
+            // Fehlerartikel und Sprache gesetzt bleiben.
+            if (!self::isRedirectExcluded($articleId)) {
+                $params = $_GET;
+                $article = rex_article::get((int) $params['article_id'], (int) ($params['clang'] ?? 0) ?: rex_clang::getCurrentId());
+                if ($article instanceof rex_article) {
+                    unset($params['article_id']);
+                    unset($params['clang']);
+                    $url = self::getFullUrlByArticleId($articleId, null, $params, '&');
+                    rex_response::sendRedirect($url, rex_response::HTTP_MOVED_PERMANENTLY);
+                }
             }
         }
 
@@ -631,6 +638,29 @@ class rex_yrewrite
             return $_SERVER['HTTP_X_FORWARDED_HOST'];
         }
         return @$_SERVER['HTTP_HOST'];
+    }
+
+    /**
+     * Ist der Artikel von der Weiterleitung auf die sprechende URL ausgenommen?
+     *
+     * Die Artikel-IDs stehen als kommagetrennte Liste in der Einstellung
+     * "yrewrite_no_redirect_article_ids". Leerzeichen sind erlaubt.
+     */
+    private static function isRedirectExcluded(int $articleId): bool
+    {
+        $ids = (string) rex_addon::require('yrewrite')->getConfig('yrewrite_no_redirect_article_ids');
+
+        if ('' === trim($ids)) {
+            return false;
+        }
+
+        foreach (explode(',', $ids) as $id) {
+            if ($articleId === (int) trim($id)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static function getSubPath(): string

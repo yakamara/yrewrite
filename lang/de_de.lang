@@ -197,4 +197,6 @@ yrewrite_settings_saved = Einstellungen gespeichert
 yrewrite_unicode_urls = Unicode-Zeichen in URLs erlauben (Umlaute, chinesische/kyrillische Zeichen etc.)
 yrewrite_hide_url_block = URL-Block verbergen
 yrewrite_hide_seo_block = SEO-Block verbergen
+yrewrite_no_redirect_article_ids = Artikel ohne Weiterleitung auf die sprechende URL
+yrewrite_no_redirect_article_ids_info = Artikel-IDs, kommagetrennt. Ein Frontend-Aufruf mit <code>?article_id=…</code> wird für diese Artikel nicht auf die sprechende URL umgeleitet — nützlich für eigene RewriteRules, die bewusst auf diese Adresse zeigen.
 yrewrite_twitter_tags = twitter:-Meta-Tags ausgeben (X/Twitter Cards)

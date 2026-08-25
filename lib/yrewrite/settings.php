@@ -31,6 +31,7 @@ class rex_yrewrite_settings
             $addon->setConfig('yrewrite_hide_url_block', rex_post('yrewrite_hide_url_block', 'bool'));
             $addon->setConfig('yrewrite_hide_seo_block', rex_post('yrewrite_hide_seo_block', 'bool'));
             $addon->setConfig('yrewrite_twitter_tags', rex_post('yrewrite_twitter_tags', 'bool'));
+            $addon->setConfig('yrewrite_no_redirect_article_ids', rex_post('yrewrite_no_redirect_article_ids', 'string'));
 
             rex_yrewrite::deleteCache();
 
@@ -71,6 +72,19 @@ class rex_yrewrite_settings
         $fragment->setVar('elements', $checkbox_elements, false);
         $checkboxes = $fragment->parse('core/form/checkbox.php');
 
+        // Textfelder
+        $field_elements = [
+            [
+                'label' => '<label for="yrewrite-no-redirect-article-ids">' . $addon->i18n('yrewrite_no_redirect_article_ids') . '</label>',
+                'field' => '<input class="form-control" type="text" id="yrewrite-no-redirect-article-ids" name="yrewrite_no_redirect_article_ids" value="' . rex_escape((string) $addon->getConfig('yrewrite_no_redirect_article_ids')) . '" />',
+                'note' => $addon->i18n('yrewrite_no_redirect_article_ids_info'),
+            ],
+        ];
+
+        $fragment = new rex_fragment();
+        $fragment->setVar('elements', $field_elements, false);
+        $fields = $fragment->parse('core/form/form.php');
+
         // Submit
         $submit_elements = [
             ['field' => '<button class="btn btn-save rex-form-aligned" type="submit" name="submit" value="1" ' . rex::getAccesskey($addon->i18n('submit'), 'save') . '>' . $addon->i18n('save') . '</button>'],
@@ -85,7 +99,7 @@ class rex_yrewrite_settings
         $fragment = new rex_fragment();
         $fragment->setVar('class', 'edit');
         $fragment->setVar('title', $addon->i18n('yrewrite_settings'));
-        $fragment->setVar('body', $checkboxes, false);
+        $fragment->setVar('body', $checkboxes . $fields, false);
         $fragment->setVar('buttons', $submit, false);
 
         return '
@@ -115,6 +129,9 @@ class rex_yrewrite_settings
         // behalten sie, siehe update.php.
         if (!$addon->hasConfig('yrewrite_twitter_tags')) {
             $addon->setConfig('yrewrite_twitter_tags', false);
+        }
+        if (!$addon->hasConfig('yrewrite_no_redirect_article_ids')) {
+            $addon->setConfig('yrewrite_no_redirect_article_ids', '');
         }
     }
 }
