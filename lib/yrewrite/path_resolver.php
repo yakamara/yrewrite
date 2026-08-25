@@ -123,19 +123,19 @@ class rex_yrewrite_path_resolver
             }
         }
 
-        /** @var string|array{article_id?: int, clang?: int} $params */
-        $params = '';
-        $params = rex_extension::registerPoint(new rex_extension_point('YREWRITE_PREPARE', $params, ['url' => $url, 'domain' => $domain]));
+        /** @var string|array{article_id?: int, clang?: int} $prepare */
+        $prepare = '';
+        $prepare = rex_extension::registerPoint(new rex_extension_point('YREWRITE_PREPARE', $prepare, ['url' => $url, 'domain' => $domain]));
 
-        if (isset($params['article_id']) && $params['article_id'] > 0) {
-            if (isset($params['clang']) && $params['clang'] > 0) {
-                $clang = $params['clang'];
+        if (isset($prepare['article_id']) && $prepare['article_id'] > 0) {
+            if (isset($prepare['clang']) && $prepare['clang'] > 0) {
+                $clang = $prepare['clang'];
             } else {
                 $clang = rex_clang::getCurrentId();
             }
 
-            if (rex_article::get($params['article_id'], $clang)) {
-                $structureAddon->setProperty('article_id', (int) $params['article_id']);
+            if (rex_article::get($prepare['article_id'], $clang)) {
+                $structureAddon->setProperty('article_id', (int) $prepare['article_id']);
                 rex_clang::setCurrentId($clang);
                 return;
             }
@@ -145,6 +145,34 @@ class rex_yrewrite_path_resolver
         $structureAddon->setProperty('article_id', $domain->getNotfoundId());
         rex_clang::setCurrentId($domain->getStartClang());
         rex_response::setStatus(rex_response::HTTP_NOT_FOUND);
+
+        // yrewrite konnte die URL keinem Artikel zuordnen. Ob der Aufruf am Ende
+        // tatsächlich als 404 hinausgeht, steht hier aber noch nicht fest: Andere
+        // AddOns können den Request danach mit einer eigenen Route beantworten und
+        // beenden ihn selbst, und die Pseudo-Dateien sitemap.xml und robots.txt laufen
+        // ebenfalls durch diese Auflösung. Beides würde ein 404-Logging mit Aufrufen
+        // füllen, die mit Status 200 beantwortet wurden.
+        //
+        // Der Extension Point wird deshalb erst beim Ausliefern der Seite gemeldet und
+        // nur dann, wenn der Status zu diesem Zeitpunkt noch 404 ist. Beendet ein
+        // anderes AddOn den Request vorher, wird OUTPUT_FILTER nie erreicht.
+        //
+        // YREWRITE_NOT_FOUND ist eine reine Benachrichtigung, etwa für ein eigenes
+        // 404-Logging; der Subject wird nicht ausgewertet. "query" enthält den
+        // Query-String samt "?", sonst einen leeren String.
+        rex_extension::register('OUTPUT_FILTER', static function () use ($url, $params, $domain) {
+            if (rex_response::HTTP_NOT_FOUND !== rex_response::getStatus()) {
+                return null;
+            }
+
+            rex_extension::registerPoint(new rex_extension_point('YREWRITE_NOT_FOUND', '', [
+                'url' => $url,
+                'query' => $params,
+                'domain' => $domain,
+            ], true));
+
+            return null;
+        });
         foreach ($this->paths[$domain->getName()][$domain->getStartId()] ?? [] as $clang => $clangUrl) {
             $rex_clang = rex_clang::get($clang);
             if ($clang != $domain->getStartClang() && '' != $clangUrl && $rex_clang->isOnline() && str_starts_with($url, $clangUrl)) {
