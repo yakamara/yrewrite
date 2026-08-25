@@ -113,10 +113,12 @@ yrewrite_index_index = allow Search Engine to index page / display in Sitemap (I
 yrewrite_index_noindex = do not allow Search Engine to index page / do not display in Sitemap (NoIndex)
 yrewrite_index_noindex_follow = do not allow Search Engine to index page and follow its links / do not display in Sitemap (NoIndex)
 
-yrewrite_htaccess_hasbeenset = .htaccess file has been created or overwritten
+yrewrite_htaccess_hasbeenset = .htaccess file has been created. An existing file was backed up in the addon data directory first.
+yrewrite_htaccess_hasnotbeenset = .htaccess file could not be created. Please check the write permissions in the root and in the data directory — an existing file is never overwritten without a backup.
+yrewrite_htaccess_copy_confirm = A .htaccess file already exists. It will be replaced and backed up first. Continue?
 yrewrite_htaccess_set = Set .htaccess file
 
-yrewrite_htaccess_info = A .htaccess file is required in the root directory to run YRewrite. I there is a .htaccess file already, it will be overwritten (can not be undone).
+yrewrite_htaccess_info = A .htaccess file is required in the root directory to run YRewrite. If a file already exists there, it is replaced and backed up as <code>.htaccess-backup-YYYY-MM-DD-HH-MM-SS</code> in the addon data directory first. The ten most recent backups are kept.
 
 yrewrite_info_headline = Usage of YRewrite
 yrewrite_info_text = Since YRewrite is intended for <b>multi-domain</b>, there are a view requirements. YRewrite does <b>not run in subfolders</b> of domains. All rewriting is managed by YRewrite. So it is possible that a URL situational also contains the domain name. For that reason do <b>not use any base tag</b> in your templates. If there are any issues with the rewriting, clear the system cache of Redaxo. This will trigger YRewrite to create all config- and rewriting files. Please make sure to have <b>Mod-Rewrite active in your Redaxo system settings</b>.

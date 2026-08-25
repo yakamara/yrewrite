@@ -11,6 +11,9 @@
 
 class rex_yrewrite
 {
+    /** Anzahl der Sicherungen der .htaccess, die im Data-Verzeichnis behalten werden. */
+    private const HTACCESS_BACKUPS = 10;
+
     /** @var array<int, array<int, rex_yrewrite_domain>> */
     private static $domainsByMountId = [];
 
@@ -603,9 +606,48 @@ class rex_yrewrite
         self::$paths = rex_file::getCache(self::$pathfile);
     }
 
+    /**
+     * Legt die .htaccess von yrewrite im Frontend-Verzeichnis ab.
+     *
+     * Eine dort bereits vorhandene Datei wird zuvor in das Data-Verzeichnis des AddOns
+     * gesichert. Lässt sich die Sicherung nicht schreiben, bleibt die vorhandene Datei
+     * unangetastet — sie wäre sonst verloren.
+     *
+     * @return bool
+     */
     public static function copyHtaccess()
     {
-        return rex_file::copy(rex_path::addon('yrewrite', 'setup/.htaccess'), rex_path::frontend('.htaccess'));
+        $htaccess = rex_path::frontend('.htaccess');
+
+        if (is_file($htaccess) && !self::backupHtaccess($htaccess)) {
+            return false;
+        }
+
+        return rex_file::copy(rex_path::addon('yrewrite', 'setup/.htaccess'), $htaccess);
+    }
+
+    /**
+     * Sichert die Datei im Data-Verzeichnis des AddOns.
+     *
+     * Der Zeitstempel im Namen sortiert chronologisch, deshalb genügt eine
+     * Namenssortierung, um die ältesten Sicherungen zu finden.
+     */
+    private static function backupHtaccess(string $htaccess): bool
+    {
+        $addon = rex_addon::require('yrewrite');
+
+        if (!rex_file::copy($htaccess, $addon->getDataPath('.htaccess-backup-' . date('Y-m-d-H-i-s')))) {
+            return false;
+        }
+
+        $backups = glob($addon->getDataPath('.htaccess-backup-*')) ?: [];
+        rsort($backups);
+
+        foreach (array_slice($backups, self::HTACCESS_BACKUPS) as $obsolete) {
+            rex_file::delete($obsolete);
+        }
+
+        return true;
     }
 
     public static function isHttps()

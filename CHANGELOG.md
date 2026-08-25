@@ -12,6 +12,8 @@ Version 2.13.0 – 17.08.2026
 * Neuer Extension Point `YREWRITE_SITEMAP_URL` je Sitemap-Eintrag, um eigene Tags innerhalb von `<url>` zu ergänzen. Ohne registrierten Listener wird er nicht aufgerufen (@michael-kreatif, #505)
 * Neuer Extension Point `YREWRITE_URL_UPDATED`, nachdem im Artikel der URL-Typ oder die eigene URL gespeichert wurde (@tbaddade, #281)
 * Nach dem Speichern einer eigenen URL weist ein Hinweis darauf hin, dass der Link *Artikel anzeigen* erst nach dem Neuladen der Seite auf die neue URL zeigt (@anveno, #361)
+* Einzelne Artikel lassen sich unter *Setup* von der Weiterleitung auf die sprechende URL ausnehmen — für eigene RewriteRules, die bewusst auf `?article_id=…` zeigen (@maul75, #563)
+* Beim Setzen der `.htaccess` wird eine dort vorhandene Datei zuvor im Data-Verzeichnis des AddOns gesichert, und der Button fragt vorher nach. Lässt sich die Sicherung nicht schreiben, bleibt die vorhandene Datei unangetastet. Die zehn neuesten Sicherungen bleiben erhalten (@danspringer, #589)
 
 ### Bugs
 
