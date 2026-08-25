@@ -273,6 +273,13 @@ class rex_yrewrite_seo
                 $domain = rex_yrewrite::getDomainByName($domain);
             }
 
+            // Der Extension Point je Eintrag wird nur aufgerufen, wenn ihn jemand nutzt.
+            // Eine Sitemap kann mehrere Tausend Einträge haben; ein registerPoint pro
+            // Eintrag kostet dann messbar Zeit und im Debug-Modus zusätzlich Speicher,
+            // weil rex_timer jeden einzelnen Aufruf protokolliert. Listener werden beim
+            // Boot registriert, eine einmalige Prüfung genügt deshalb.
+            $urlExtension = rex_extension::isRegistered('YREWRITE_SITEMAP_URL');
+
             foreach (rex_yrewrite::getPathsByDomain($domain->getName()) as $article_id => $path) {
                 foreach ($domain->getClangs() as $clang_id) {
                     if (!isset($path[$clang_id]) || !rex_clang::get($clang_id)->isOnline() || ($clang > 0 && $clang != $clang_id)) {
@@ -301,6 +308,20 @@ class rex_yrewrite_seo
                                     "\n\t" . '</image:image>';
                             }
                         }
+
+                        // Eigene Tags innerhalb von <url> ergänzen, z. B. <video:video>
+                        // oder eine PageMap. Der Subject ist der Eintrag OHNE das
+                        // schließende </url>, das danach angefügt wird — angehängte
+                        // Tags landen also innerhalb des Elements.
+                        if ($urlExtension) {
+                            $sitemap_entry = rex_extension::registerPoint(new rex_extension_point('YREWRITE_SITEMAP_URL', $sitemap_entry, [
+                                'article' => $article,
+                                'domain' => $domain,
+                                'clang' => $clang_id,
+                                'path' => $path[$clang_id],
+                            ]));
+                        }
+
                         $sitemap_entry .= "\n" . '</url>';
                         $sitemap[] = $sitemap_entry;
                     }
