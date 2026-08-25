@@ -123,13 +123,29 @@ if ($isStartarticle) {
     $form = $yform->getForm();
 
     if ($yform->objparams['actions_executed']) {
-        $form = rex_view::success($addon->i18n('urlupdated')) . $form;
+        // Der Link "Artikel anzeigen" in der Werkzeugleiste wurde beim Aufbau der Seite
+        // erzeugt und zeigt noch auf die vorherige URL. Der Hinweis erspart die Suche
+        // nach der Ursache.
+        $form = rex_view::success($addon->i18n('urlupdated')) . rex_view::info($addon->i18n('url_reload_notice')) . $form;
         rex_yrewrite::generatePathFile([
             'id' => $article_id,
             'clang' => $clang,
             'extension_point' => 'ART_UPDATED',
         ]);
         rex_article_cache::delete($article_id, $clang);
+
+        // Andere AddOns - etwa das URL-AddOn - erfahren sonst nichts davon, dass sich
+        // die URL dieses Artikels geändert hat. ART_UPDATED wird bewusst nicht
+        // ausgelöst: yrewrite hört selbst darauf und würde den Pfad-Cache ein zweites
+        // Mal erzeugen, und andere Listener erwarten dort die vollständigen
+        // Artikeldaten. Reine Benachrichtigung, der Subject wird nicht ausgewertet.
+        $updatedArticle = rex_article::get($article_id, $clang);
+        rex_extension::registerPoint(new rex_extension_point('YREWRITE_URL_UPDATED', '', [
+            'id' => $article_id,
+            'clang' => $clang,
+            'url_type' => $updatedArticle ? (string) $updatedArticle->getValue('yrewrite_url_type') : '',
+            'url' => $updatedArticle ? (string) $updatedArticle->getValue('yrewrite_url') : '',
+        ], true));
     }
 
     echo $form;

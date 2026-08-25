@@ -78,6 +78,7 @@ yrewrite_warning_urlexists = Diese URL existiert bereits bei Artikel mit der id=
 yrewrite_warning_redirect_to_self = Der Artikel kann nicht auf sich selbst weiterleiten.
 yrewrite_warning_otherarticle = Zum anderen Artikel
 yrewrite_urlupdated = URL wurde aktualisiert
+yrewrite_url_reload_notice = Der Link "Artikel anzeigen" in der Werkzeugleiste zeigt noch auf die vorherige URL. Er wird erst nach dem Neuladen der Seite aktualisiert.
 yrewrite_domain_not_well_formed = Domain/URL-Format stimmt nicht.
 
 

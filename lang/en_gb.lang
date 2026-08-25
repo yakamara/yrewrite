@@ -77,6 +77,7 @@ yrewrite_warning_urlexists = URL exists already {0}
 yrewrite_warning_redirect_to_self = The article can not redirect to itself.
 yrewrite_warning_otherarticle = To different article
 yrewrite_urlupdated = URL has been updated
+yrewrite_url_reload_notice = The "Show article" link in the toolbar still points to the previous URL. It is updated after reloading the page.
 yrewrite_domain_not_well_formed = Domain/URL syntax ill formed
 
 
