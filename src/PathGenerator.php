@@ -63,7 +63,7 @@ class PathGenerator
 
     public function generate(Article $article): void
     {
-        $clangId = $article->clangId;
+        $clangId = $article->languageId;
 
         $domain = $this->domains[0][$clangId];
         $path = $this->scheme->getClang($clangId, $domain);
@@ -119,7 +119,7 @@ class PathGenerator
     private function setDomain(StructureElement $element, Domain $domain, string $path): array
     {
         $id = $element->id;
-        $clang = $element->clangId;
+        $clang = $element->languageId;
 
         if (isset($this->domains[$id][$clang])) {
             $domain = $this->domains[$id][$clang];
@@ -135,7 +135,7 @@ class PathGenerator
 
         $domainName = $domain->getName();
         $articleId = $article->id;
-        $clangId = $article->clangId;
+        $clangId = $article->languageId;
 
         $url = $this->scheme->getCustomUrl($article, $domain);
 
@@ -167,7 +167,7 @@ class PathGenerator
         if ($redirection instanceof StructureElement) {
             $this->redirections[$domainName][$articleId][$clangId] = [
                 'id' => $redirection->id,
-                'clang' => $redirection->clangId,
+                'clang' => $redirection->languageId,
                 'path' => $url,
             ];
 

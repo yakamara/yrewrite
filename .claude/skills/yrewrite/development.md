@@ -146,6 +146,39 @@ throws `1364 Field 'x' doesn't have a default value`. Make every optional column
   the file. `sitemap.xml` / `robots.txt` are rewritten to `index.php?rex_yrewrite_func=sitemap|robots`.
 - This is Apache-specific; on nginx configure rewrites in the server block (see `SKILL.md`).
 
+### The `/media/` rules — and the REDAXO 5 leftover that was removed
+
+`setup/.htaccess` places its media rules **above** the `!-f`/`!-d` conditions, so they win over
+existing files. That is deliberate for the media-manager forms and was wrong for a third rule that
+has since been dropped:
+
+| Rule | Purpose | Status |
+|---|---|---|
+| `^mediatypes/([^/]*)/([^/]*)` | legacy media-manager form | keep |
+| `^media/([^/]+)/(.*)` → `rex_media_type=$1` | what `YRewrite::rewriteMedia()` generates | **required** |
+| `^media/(.*)` → `rex_media_type=yrewrite_default` | R5 leftover | **removed** |
+
+REDAXO 5's yrewrite created a `yrewrite_default` media type on install. **yrewrite 3 does not** —
+`YRewriteAddon::install()` only creates `yrewrite_seo_image`. In REDAXO 6 media types are classes
+discovered via `#[AsMediaType]`, not rows in `rex_media_manager_type` (that table is a setup
+leftover nothing reads), so the name resolves nowhere: `MediaTypeRegistry::has()` is false,
+`MediaManager::init()` returns without delivering, REDAXO answers as a normal page and every
+`/media/<file>` — i.e. everything `Url::media()` points at — becomes a **404 with `text/html`**,
+even though the file is on disk.
+
+The shipped file is fixed, but Setup only writes on click — projects set up earlier still carry the
+rule in their document root (`grep yrewrite_default public/.htaccess`). Diagnose it with two
+requests; a `text/html` body under an image URL is the tell:
+
+```bash
+curl -sSI https://example.org/media/foo.png                   # expect 200 image/*
+curl -sSI https://example.org/media/rex_media_large/foo.png   # expect 200 image/*
+```
+
+Deliberately **no** catch-all belongs there: the unprocessed pool file is meant to be served
+statically by the `!-f` condition. Note the two-segment rule also shadows media *subfolders* — that
+part of the R5 comment still holds, use `/assets/` for frontend assets.
+
 ## Mass rename principle
 
 `yrewrite_` contains the substring `rewrite_`, so sequential search-replaces double up

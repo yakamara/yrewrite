@@ -63,7 +63,7 @@ class Settings
         $checkboxes = $fragment->parse('core/form/checkbox.php');
 
         $submitElements = [
-            ['field' => '<button class="btn btn-save rex-form-aligned" type="submit" name="submit" value="1" ' . Core::getAccesskey($addon->i18n('save'), 'save') . '>' . $addon->i18n('save') . '</button>'],
+            ['field' => '<button class="btn btn-save rex-form-aligned" type="submit" name="submit" value="1" ' . \Redaxo\Core\Backend\Accesskey::attributes($addon->i18n('save'), 'save') . '>' . $addon->i18n('save') . '</button>'],
         ];
 
         $fragment = new Fragment();

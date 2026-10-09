@@ -3,12 +3,11 @@
 /**
  * Article content sidebar panel: SEO data (yrewrite_* columns).
  *
- * @var Yakamara\YRewrite\YRewriteAddon $this
- * @var array{article_id: int, clang: int, ctype: int} $params
+ * @var YRewriteAddon $this
+ * @var array{article_id: int, language: int, ctype: int} $params
  */
 
 use Redaxo\Core\Content\ArticleCache;
-use Redaxo\Core\Core;
 use Redaxo\Core\ExtensionPoint\Extension;
 use Redaxo\Core\ExtensionPoint\ExtensionPoint;
 use Redaxo\Core\Filesystem\Url;
@@ -16,25 +15,27 @@ use Redaxo\Core\Form\Form;
 use Redaxo\Core\Http\Response;
 use Redaxo\Core\Translation\I18n;
 use Yakamara\YRewrite\Seo;
+use Yakamara\YRewrite\YRewriteAddon;
 
 $articleId = (int) $params['article_id'];
-$clang = (int) $params['clang'];
+$clang = (int) $params['language'];
 $ctype = (int) $params['ctype'];
 
-$applyUrl = Url::backendPage('content/edit', ['article_id' => $articleId, 'clang' => $clang, 'ctype' => $ctype]);
+$applyUrl = Url::backendPage('content/edit', ['article_id' => $articleId, 'language' => $clang, 'ctype' => $ctype]);
 
-// reordered where-condition keeps the form name distinct from the URL panel (md5 of table+where+method)
-$form = Form::factory(Core::getTable('article'), 'yrewrite_seo', 'clang_id = ' . $clang . ' AND id = ' . $articleId);
+// The SEO settings live on rex_article and apply to all languages. The where clause is written differently than in
+// the URL panel ("id=…" vs "id = …") because the form name is the md5 of table and where.
+$form = Form::factory('rex_article', 'yrewrite_seo', 'id=' . $articleId);
 $form->addParam('page', 'content/edit');
 $form->addParam('article_id', $articleId);
-$form->addParam('clang', $clang);
+$form->addParam('language', $clang);
 $form->addParam('ctype', $ctype);
 $form->setApplyUrl($applyUrl);
 $form->setEditMode(true);
 
-Extension::register('REX_FORM_SAVED', static function (ExtensionPoint $ep) use ($form, $articleId, $clang): void {
+Extension::register('REX_FORM_SAVED', static function (ExtensionPoint $ep) use ($form, $articleId): void {
     if ($ep->getParam('form') === $form) {
-        ArticleCache::delete($articleId, $clang);
+        ArticleCache::delete($articleId);
     }
 });
 

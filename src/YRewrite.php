@@ -15,9 +15,13 @@ use Redaxo\Core\Http\Response;
 use Redaxo\Core\Language\Language;
 use Redaxo\Core\Util\Str;
 
-use function count;
+use function dirname;
+use function function_exists;
+use function in_array;
+use function strlen;
 
 use const DIRECTORY_SEPARATOR;
+use const ENT_QUOTES;
 
 /**
  * Main rewrite API.
@@ -135,14 +139,12 @@ class YRewrite
         return null;
     }
 
-    /**
-     * @param array<string, mixed> $parameters
-     */
+    /** @param array<string, mixed> $parameters */
     public static function getFullUrlByArticleId(?int $articleId = null, ?int $clang = null, array $parameters = [], string $separator = '&amp;'): string
     {
         $params = [];
         $params['id'] = $articleId ?: Article::getCurrentId();
-        $params['clang'] = $clang ?: Language::getCurrentId();
+        $params['language'] = $clang ?: Language::getCurrentId();
         $params['params'] = $parameters;
         $params['separator'] = $separator;
 
@@ -212,11 +214,20 @@ class YRewrite
 
     public static function prepare(): bool
     {
+        // A media manager request (`?rex_media_type=…&rex_media_file=…`) is served by
+        // MediaManager::init(), which listens on the same extension point and level and exits after
+        // sending the file. Resolving such a URL against the path list finds no article, so
+        // PathResolver would leave a 404 status behind that Response::sendFile() then sends along
+        // with the (correctly generated) image. Nothing here applies to media requests anyway.
+        if ('' !== Request::get('rex_media_type', 'string') && '' !== Request::get('rex_media_file', 'string')) {
+            return false;
+        }
+
         if (Core::isFrontend() && 'get' === Request::requestMethod() && !Request::get('rex-api-call') && $articleId = Request::get('article_id', 'int')) {
             $params = $_GET;
-            $article = Article::get((int) $params['article_id'], (int) ($params['clang'] ?? 0) ?: Language::getCurrentId());
+            $article = Article::get((int) $params['article_id'], (int) ($params['language'] ?? 0) ?: Language::getCurrentId());
             if ($article instanceof Article) {
-                unset($params['article_id'], $params['clang']);
+                unset($params['article_id'], $params['language']);
                 $url = self::getFullUrlByArticleId($articleId, null, $params, '&');
                 Response::sendRedirect($url, Response::HTTP_MOVED_PERMANENTLY);
             }
@@ -253,7 +264,7 @@ class YRewrite
         }
 
         $id = $params['id'];
-        $clang = $params['clang'];
+        $clang = $params['language'] ?? Language::getCurrentId();
 
         foreach (self::$paths['redirections'] ?? [] as $redirections) {
             if (isset($redirections[$id][$clang]['url'])) {
@@ -262,7 +273,7 @@ class YRewrite
 
             if (isset($redirections[$id][$clang])) {
                 $params['id'] = $redirections[$id][$clang]['id'];
-                $params['clang'] = $redirections[$id][$clang]['clang'];
+                $params['language'] = $redirections[$id][$clang]['clang'];
                 return self::rewrite($params, $yparams, $fullpath);
             }
         }
@@ -297,9 +308,7 @@ class YRewrite
         return $path . ($urlparams ? '?' . $urlparams : '');
     }
 
-    /**
-     * @param array<string, mixed> $params
-     */
+    /** @param array<string, mixed> $params */
     public static function rewriteMedia(array $params): string
     {
         $buster = '';
@@ -322,14 +331,15 @@ class YRewrite
         $generator = new PathGenerator(self::getScheme(), self::$domainsByMountId, self::$paths['paths'] ?? [], self::$paths['redirections'] ?? []);
 
         $ep = $params['extension_point'] ?? '';
+        // Only the status and update points name a language; the others concern the article in all languages.
+        $languageIds = isset($params['language']) ? [(int) $params['language']] : Language::getAllIds();
         switch ($ep) {
-            // clang and id specific update
             case 'CAT_DELETED':
             case 'ART_DELETED':
-                $generator->removeArticle($params['id'], $params['clang']);
+                foreach ($languageIds as $languageId) {
+                    $generator->removeArticle((int) $params['id'], $languageId);
 
-                if ($params['parent_id'] > 0) {
-                    if ($parent = Article::get($params['parent_id'], $params['clang'])) {
+                    if ($params['parent_id'] > 0 && $parent = Article::get((int) $params['parent_id'], $languageId)) {
                         $generator->generate($parent);
                     }
                 }
@@ -337,11 +347,11 @@ class YRewrite
                 break;
             case 'CAT_MOVED':
             case 'ART_MOVED':
-                $clangId = $params['clang'] ?? $params['clang_id'];
-
-                $generator->removeArticle($params['id'], $clangId);
-                if ($art = Article::get($params['id'], $params['clang'])) {
-                    $generator->generate($art);
+                foreach ($languageIds as $languageId) {
+                    $generator->removeArticle((int) $params['id'], $languageId);
+                    if ($art = Article::get((int) $params['id'], $languageId)) {
+                        $generator->generate($art);
+                    }
                 }
 
                 break;
@@ -356,17 +366,15 @@ class YRewrite
             case 'ART_STATUS':
             case 'ART_TO_STARTARTICLE':
             case 'ART_TO_CAT':
-                ArticleCache::delete($params['id']);
+                ArticleCache::delete((int) $params['id']);
 
-                if ($art = Article::get($params['id'], $params['clang'])) {
-                    $generator->generate($art);
+                foreach ($languageIds as $languageId) {
+                    if ($art = Article::get((int) $params['id'], $languageId)) {
+                        $generator->generate($art);
+                    }
                 }
 
                 break;
-                // update all
-            case 'CLANG_DELETED':
-            case 'CLANG_ADDED':
-            case 'CLANG_UPDATED':
             default:
                 $generator->generateAll();
                 break;
@@ -378,7 +386,7 @@ class YRewrite
         ];
 
         $sql = Sql::factory()
-            ->setTable(Core::getTable('yrewrite_forward'));
+            ->setTable(Core::TABLE_PREFIX . 'yrewrite_forward');
 
         // Alte Einträge ausschalten
         $sql->setWhere('expiry_date > "0000-00-00" AND expiry_date < :date', ['date' => date('Y-m-d')]);
@@ -411,15 +419,11 @@ class YRewrite
                         // Wenn es eine Abweichung im Pfad gibt, wird ein neuer Eintrag eingefügt
                         if (self::$paths['paths'][$domainName][$artId][$clangId] !== $oldArtPaths[$clangId]) {
                             if ('CAT_DELETED' === $ep || 'ART_DELETED' === $ep) {
-                                $sql->setTable(Core::getTable('yrewrite_forward'));
+                                $sql->setTable(Core::TABLE_PREFIX . 'yrewrite_forward');
                                 $sql->setWhere(['article_id' => $artId]);
                                 $sql->delete();
-                            } elseif ('CLANG_DELETED' === $ep) {
-                                $sql->setTable(Core::getTable('yrewrite_forward'));
-                                $sql->setWhere(['clang' => $clangId]);
-                                $sql->delete();
                             } elseif (in_array($ep, ['CAT_MOVED', 'CAT_UPDATED', 'ART_MOVED', 'ART_UPDATED', 'ART_META_UPDATED'], true)) {
-                                $sql->setTable(Core::getTable('yrewrite_forward'));
+                                $sql->setTable(Core::TABLE_PREFIX . 'yrewrite_forward');
                                 $sql->setValues([
                                     'article_id' => $artId,
                                     'clang' => $clangId,
@@ -435,7 +439,7 @@ class YRewrite
                                 // alte Redirects löschen wenn die URL der neuen URL des Artikels entspricht
                                 $newUrl = Url::article($artId, $clangId);
                                 $cleanUrl = trim(substr($newUrl, strpos($newUrl, $domainName) + strlen($domainName)), '/');
-                                $sql->setTable(Core::getTable('yrewrite_forward'));
+                                $sql->setTable(Core::TABLE_PREFIX . 'yrewrite_forward');
                                 $sql->setValues([]);
                                 $sql->setWhere(['url' => $cleanUrl]);
                                 $sql->delete();
@@ -466,7 +470,7 @@ class YRewrite
 
         $gc = Sql::factory();
 
-        $domains = $gc->getArray('select * from ' . Core::getTable('yrewrite_domain') . ' order by mount_id, clangs');
+        $domains = $gc->getArray('select * from ' . (Core::TABLE_PREFIX . 'yrewrite_domain') . ' order by mount_id, clangs');
         foreach ($domains as $domain) {
             if (!$domain['domain']) {
                 continue;
@@ -512,7 +516,7 @@ class YRewrite
             }
         }
 
-        $aliasDomains = $gc->getArray('select * from ' . Core::getTable('yrewrite_alias') . ' order by domain_id');
+        $aliasDomains = $gc->getArray('select * from ' . (Core::TABLE_PREFIX . 'yrewrite_alias') . ' order by domain_id');
         foreach ($aliasDomains as $domain) {
             if (!$domain['alias_domain'] || !$domain['domain_id']) {
                 continue;
@@ -588,9 +592,7 @@ class YRewrite
         return rtrim($path, DIRECTORY_SEPARATOR) . '/';
     }
 
-    /**
-     * @param array<string, mixed> $params
-     */
+    /** @param array<string, mixed> $params */
     private static function buildQuery(array $params, string $separator): string
     {
         return str_replace('&', $separator, Str::buildQuery($params));

@@ -113,7 +113,7 @@ class Forward
     public static function generatePathFile(): void
     {
         $gc = Sql::factory();
-        $content = $gc->getArray('select * from ' . Core::getTable('yrewrite_forward'));
+        $content = $gc->getArray('select * from ' . (Core::TABLE_PREFIX . 'yrewrite_forward'));
 
         foreach ($content as &$row) {
             $url = explode('?', (string) $row['url'], 2);

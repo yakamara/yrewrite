@@ -49,7 +49,7 @@ class YRewriteAddon extends Addon
             YRewrite::init();
 
             if ('robots' === Request::request('rex_yrewrite_func', 'string')) {
-                (new Seo())->sendRobotsTxt();
+                new Seo()->sendRobotsTxt();
             }
 
             // if anything changes -> refresh PathFile
@@ -62,7 +62,6 @@ class YRewriteAddon extends Addon
                 'CAT_ADDED', 'CAT_UPDATED', 'CAT_DELETED', 'CAT_STATUS', 'CAT_MOVED',
                 'ART_ADDED', 'ART_UPDATED', 'ART_DELETED', 'ART_STATUS', 'ART_MOVED', 'ART_COPIED',
                 'ART_META_UPDATED', 'ART_TO_STARTARTICLE', 'ART_TO_CAT', 'CAT_TO_ART',
-                'CLANG_UPDATED',
             ];
             foreach ($extensionPoints as $extensionPoint) {
                 Extension::register($extensionPoint, static function (ExtensionPoint $ep): void {
@@ -117,7 +116,7 @@ class YRewriteAddon extends Addon
 
         if ('sitemap' === Request::request('rex_yrewrite_func', 'string')) {
             Extension::register('PACKAGES_INCLUDED', static function (): void {
-                (new Seo())->sendSitemap();
+                new Seo()->sendSitemap();
             }, ExtensionLevel::Late);
         }
 
@@ -128,9 +127,7 @@ class YRewriteAddon extends Addon
         });
     }
 
-    /**
-     * @return iterable<Page>
-     */
+    /** @return iterable<Page> */
     #[Override]
     public function getPages(): iterable
     {
@@ -166,28 +163,32 @@ class YRewriteAddon extends Addon
     #[Override]
     public function install(): void
     {
-        $table = Table::get(Core::getTable('article'));
+        // All URL/SEO columns are optional and therefore nullable: every INSERT into rex_article that
+        // core (or an addon, or the API) performs sets only core's own columns, and MySQL strict mode
+        // rejects a missing NOT NULL column without a default with "1364 Field ... doesn't have a
+        // default value" — which would break creating any article or category.
+        $table = Table::get(Core::TABLE_PREFIX . 'article');
         $urlTypeExists = $table->hasColumn('yrewrite_url_type');
         $table
             ->ensureColumn(new Column('yrewrite_url_type', "enum('AUTO','CUSTOM','REDIRECTION_INTERNAL','REDIRECTION_EXTERNAL')", false, 'AUTO'))
-            ->ensureColumn(new Column('yrewrite_url', 'text'), 'yrewrite_url_type')
-            ->ensureColumn(new Column('yrewrite_redirection', 'varchar(191)'), 'yrewrite_url')
-            ->ensureColumn(new Column('yrewrite_title', 'varchar(191)'), 'yrewrite_redirection')
-            ->ensureColumn(new Column('yrewrite_description', 'text'), 'yrewrite_title')
-            ->ensureColumn(new Column('yrewrite_image', 'varchar(191)'), 'yrewrite_description')
+            ->ensureColumn(new Column('yrewrite_url', 'text', true), 'yrewrite_url_type')
+            ->ensureColumn(new Column('yrewrite_redirection', 'varchar(191)', true), 'yrewrite_url')
+            ->ensureColumn(new Column('yrewrite_title', 'varchar(191)', true), 'yrewrite_redirection')
+            ->ensureColumn(new Column('yrewrite_description', 'text', true), 'yrewrite_title')
+            ->ensureColumn(new Column('yrewrite_image', 'varchar(191)', true), 'yrewrite_description')
             ->ensureColumn(new Column('yrewrite_changefreq', 'varchar(10)', true), 'yrewrite_image')
             ->ensureColumn(new Column('yrewrite_priority', 'varchar(5)', true), 'yrewrite_changefreq')
             ->ensureColumn(new Column('yrewrite_index', 'tinyint(1)', true), 'yrewrite_priority')
-            ->ensureColumn(new Column('yrewrite_canonical_url', 'text'), 'yrewrite_index')
+            ->ensureColumn(new Column('yrewrite_canonical_url', 'text', true), 'yrewrite_index')
             ->alter();
 
         if (!$urlTypeExists) {
-            Sql::factory()->setQuery('UPDATE ' . Core::getTable('article') . ' SET yrewrite_url_type = IF(yrewrite_url != "", "CUSTOM", "AUTO")');
+            Sql::factory()->setQuery('UPDATE ' . (Core::TABLE_PREFIX . 'article') . ' SET yrewrite_url_type = IF(yrewrite_url != "", "CUSTOM", "AUTO")');
         }
 
         // Only domain/start_id/notfound_id are required; the rest is optional and therefore nullable,
         // so the backend form may omit fields (MySQL strict mode rejects missing NOT NULL columns).
-        Table::get(Core::getTable('yrewrite_domain'))
+        Table::get(Core::TABLE_PREFIX . 'yrewrite_domain')
             ->ensurePrimaryIdColumn()
             ->ensureColumn(new Column('domain', 'varchar(191)'))
             ->ensureColumn(new Column('mount_id', 'int(11)', true))
@@ -206,7 +207,7 @@ class YRewriteAddon extends Addon
             ->ensureIndex(new Index('domain', ['domain'], Index::UNIQUE))
             ->ensure();
 
-        Table::get(Core::getTable('yrewrite_alias'))
+        Table::get(Core::TABLE_PREFIX . 'yrewrite_alias')
             ->ensurePrimaryIdColumn()
             ->ensureColumn(new Column('alias_domain', 'varchar(191)'))
             ->ensureColumn(new Column('domain_id', 'int(11)'))
@@ -214,7 +215,7 @@ class YRewriteAddon extends Addon
             ->ensureIndex(new Index('alias_domain', ['alias_domain'], Index::UNIQUE))
             ->ensure();
 
-        Table::get(Core::getTable('yrewrite_forward'))
+        Table::get(Core::TABLE_PREFIX . 'yrewrite_forward')
             ->ensurePrimaryIdColumn()
             ->ensureColumn(new Column('domain_id', 'int(11)'))
             ->ensureColumn(new Column('status', 'int(11)'))
@@ -229,32 +230,39 @@ class YRewriteAddon extends Addon
             ->ensure();
 
         $c = Sql::factory();
-        $c->setQuery('ALTER TABLE `' . Core::getTable('yrewrite_domain') . '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
-        $c->setQuery('ALTER TABLE `' . Core::getTable('yrewrite_alias') . '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
-        $c->setQuery('ALTER TABLE `' . Core::getTable('yrewrite_forward') . '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+        $c->setQuery('ALTER TABLE `' . (Core::TABLE_PREFIX . 'yrewrite_domain') . '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+        $c->setQuery('ALTER TABLE `' . (Core::TABLE_PREFIX . 'yrewrite_alias') . '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+        $c->setQuery('ALTER TABLE `' . (Core::TABLE_PREFIX . 'yrewrite_forward') . '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
 
-        // Add media manager type
-        $c->setQuery('SELECT * FROM ' . Core::getTable('media_manager_type') . " WHERE name = 'yrewrite_seo_image'");
-        if (0 === $c->getRows()) {
-            $type = Sql::factory();
-            $type->setTable(Core::getTable('media_manager_type'));
-            $type->setValue('status', 0);
-            $type->setValue('name', 'yrewrite_seo_image');
-            $type->setValue('description', 'Rewrite SEO preview image for sitemap and open graph tags');
-            $type->addGlobalCreateFields();
-            $type->addGlobalUpdateFields();
-            $type->insert();
-            $lastId = $type->getLastId();
+        // Add media manager type.
+        //
+        // Guarded by the table's existence: current redaxo/core 6 registers media
+        // types from #[AsMediaType] classes and no longer ships
+        // rex_media_manager_type. On such an installation the seo image type is
+        // simply absent — install must not fail over it.
+        if (Table::get(Core::TABLE_PREFIX . 'media_manager_type')->exists()) {
+            $c->setQuery('SELECT * FROM ' . (Core::TABLE_PREFIX . 'media_manager_type') . " WHERE name = 'yrewrite_seo_image'");
+            if (0 === $c->getRows()) {
+                $type = Sql::factory();
+                $type->setTable(Core::TABLE_PREFIX . 'media_manager_type');
+                $type->setValue('status', 0);
+                $type->setValue('name', 'yrewrite_seo_image');
+                $type->setValue('description', 'Rewrite SEO preview image for sitemap and open graph tags');
+                $type->addGlobalCreateFields();
+                $type->addGlobalUpdateFields();
+                $type->insert();
+                $lastId = $type->getLastId();
 
-            $effect = Sql::factory();
-            $effect->setTable(Core::getTable('media_manager_type_effect'));
-            $effect->setValue('type_id', $lastId);
-            $effect->setValue('effect', 'resize');
-            $effect->setValue('parameters', '{"rex_effect_resize":{"rex_effect_resize_width":"4096","rex_effect_resize_height":"4096","rex_effect_resize_style":"maximum","rex_effect_resize_allow_enlarge":"not_enlarge"}}');
-            $effect->setValue('priority', 1);
-            $effect->addGlobalCreateFields();
-            $effect->addGlobalUpdateFields();
-            $effect->insert();
+                $effect = Sql::factory();
+                $effect->setTable(Core::TABLE_PREFIX . 'media_manager_type_effect');
+                $effect->setValue('type_id', $lastId);
+                $effect->setValue('effect', 'resize');
+                $effect->setValue('parameters', '{"rex_effect_resize":{"rex_effect_resize_width":"4096","rex_effect_resize_height":"4096","rex_effect_resize_style":"maximum","rex_effect_resize_allow_enlarge":"not_enlarge"}}');
+                $effect->setValue('priority', 1);
+                $effect->addGlobalCreateFields();
+                $effect->addGlobalUpdateFields();
+                $effect->insert();
+            }
         }
 
         Addon::require('yrewrite')->clearCache();
@@ -265,14 +273,14 @@ class YRewriteAddon extends Addon
     {
         // drop the addon's own tables
         foreach (['yrewrite_domain', 'yrewrite_alias', 'yrewrite_forward'] as $table) {
-            $t = Table::get(Core::getTable($table));
+            $t = Table::get(Core::TABLE_PREFIX . $table);
             if ($t->exists()) {
                 $t->drop();
             }
         }
 
         // remove the columns added to the article table
-        $article = Table::get(Core::getTable('article'));
+        $article = Table::get(Core::TABLE_PREFIX . 'article');
         $changed = false;
         foreach ([
             'yrewrite_url_type', 'yrewrite_url', 'yrewrite_redirection', 'yrewrite_title',
@@ -290,11 +298,11 @@ class YRewriteAddon extends Addon
 
         // remove the media manager type and its effects
         $sql = Sql::factory();
-        $sql->setQuery('SELECT id FROM ' . Core::getTable('media_manager_type') . " WHERE name = 'yrewrite_seo_image'");
+        $sql->setQuery('SELECT id FROM ' . (Core::TABLE_PREFIX . 'media_manager_type') . " WHERE name = 'yrewrite_seo_image'");
         if ($sql->getRows() > 0) {
             $typeId = (int) $sql->getValue('id');
-            Sql::factory()->setQuery('DELETE FROM ' . Core::getTable('media_manager_type_effect') . ' WHERE type_id = ?', [$typeId]);
-            Sql::factory()->setQuery('DELETE FROM ' . Core::getTable('media_manager_type') . ' WHERE id = ?', [$typeId]);
+            Sql::factory()->setQuery('DELETE FROM ' . (Core::TABLE_PREFIX . 'media_manager_type_effect') . ' WHERE type_id = ?', [$typeId]);
+            Sql::factory()->setQuery('DELETE FROM ' . (Core::TABLE_PREFIX . 'media_manager_type') . ' WHERE id = ?', [$typeId]);
         }
 
         $this->clearCache();

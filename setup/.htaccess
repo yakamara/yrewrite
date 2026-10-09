@@ -77,11 +77,16 @@ AddDefaultCharset utf-8
 
     # REWRITE RULE FOR SEO FRIENDLY IMAGE MANAGER URLS
     # Use example.org/media/media-type-profile/file.ext for beautified URLs and optimized images.
-    # IMPORTANT: These rule will also prevent subfolders and files of /media/
-    #            to be loaded directly. Use the /assets/ folder instead.
+    # This is the URL shape yrewrite generates (YRewrite::rewriteMedia via MEDIA_MANAGER_URL).
+    # IMPORTANT: This also prevents subfolders of /media/ from being loaded directly.
+    #            Use the /assets/ folder instead.
     RewriteRule ^mediatypes/([^/]*)/([^/]*) %{ENV:BASE}/index.php?rex_media_type=$1&rex_media_file=$2
     RewriteRule ^media/([^/]+)/(.*) %{ENV:BASE}/index.php?rex_media_type=$1&rex_media_file=$2&%{QUERY_STRING} [B]
-    RewriteRule ^media/(.*) %{ENV:BASE}/index.php?rex_media_type=yrewrite_default&rex_media_file=$1&%{QUERY_STRING} [B]
+
+    # NOTE: no catch-all rule for /media/<file> here on purpose. `Url::media()` points at the
+    # unprocessed media pool file, which Apache serves statically via the !-f condition below.
+    # (REDAXO 5's yrewrite routed it through a `yrewrite_default` media type; yrewrite 3 for
+    # REDAXO 6 no longer creates that type, so such a rule would 404 every original file.)
 
     # existing files will not be overwritten
     RewriteCond %{REQUEST_FILENAME} !-f

@@ -7,8 +7,6 @@ use Redaxo\Core\Content\Category;
 use Redaxo\Core\Content\StructureElement;
 use Redaxo\Core\Language\Language;
 
-use function is_string;
-
 /**
  * Builds the URL path scheme for articles and categories.
  *
@@ -40,7 +38,7 @@ class Scheme
 
     public function appendCategory(string $path, Category $cat, Domain $domain): string
     {
-        return $path . '/' . $this->normalize($cat->name, $cat->clangId);
+        return $path . '/' . $this->normalize($cat->name, $cat->languageId);
     }
 
     public function appendArticle(string $path, Article $art, Domain $domain): string
@@ -48,16 +46,16 @@ class Scheme
         if ($art->isStartArticle() && $domain->getMountId() !== $art->id) {
             return $path . $this->suffix;
         }
-        return $path . '/' . $this->normalize($art->name, $art->clangId) . $this->suffix;
+        return $path . '/' . $this->normalize($art->name, $art->languageId) . $this->suffix;
     }
 
     public function getCustomUrl(Article $art, Domain $domain): string|false
     {
         if ($domain->getStartId() === $art->id) {
-            if (!$domain->isStartClangAuto() && $domain->getStartClang() === $art->clangId) {
+            if (!$domain->isStartClangAuto() && $domain->getStartClang() === $art->languageId) {
                 return '/';
             }
-            return $this->getClang($art->clangId, $domain) . $this->suffix;
+            return $this->getClang($art->languageId, $domain) . $this->suffix;
         }
         if ($url = (string) $art->getValue('yrewrite_url')) {
             return $url;
@@ -70,7 +68,7 @@ class Scheme
         return false;
     }
 
-    /** @return null|string|list<string> */
+    /** @return string|list<string>|null */
     public function getAlternativeCandidates(string $path, Domain $domain): array|string|null
     {
         if (str_ends_with($path, '/')) {

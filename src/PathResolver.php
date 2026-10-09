@@ -75,19 +75,19 @@ class PathResolver
             $this->redirect($currentScheme . '://' . $host, Url::article($domain->getStartId(), $startClang), $params, Response::HTTP_MOVED_TEMPORARILY);
         }
 
-        Core::setProperty('start_article_id', $domain->getStartId());
-        Core::setProperty('notfound_article_id', $domain->getNotfoundId());
+        Article::setSiteStartArticleId($domain->getStartId());
+        Article::setNotfoundArticleId($domain->getNotfoundId());
 
         // if no path -> startarticle
         if ('' === $url) {
-            Core::setProperty('article_id', $domain->getStartId());
+            Article::setCurrentId($domain->getStartId());
             Language::setCurrentId($domain->getStartClang());
             return;
         }
 
         // normal exact check
         if ($result = $this->searchPath($domain, $url)) {
-            Core::setProperty('article_id', $result['article_id']);
+            Article::setCurrentId((int) $result['article_id']);
             Language::setCurrentId($result['clang_id']);
             return;
         }
@@ -117,14 +117,14 @@ class PathResolver
             }
 
             if (Article::get($epParams['article_id'], $clang)) {
-                Core::setProperty('article_id', (int) $epParams['article_id']);
+                Article::setCurrentId((int) $epParams['article_id']);
                 Language::setCurrentId($clang);
                 return;
             }
         }
 
         // no article found -> domain not found article
-        Core::setProperty('article_id', $domain->getNotfoundId());
+        Article::setCurrentId($domain->getNotfoundId());
         Language::setCurrentId($domain->getStartClang());
         Response::setStatus(Response::HTTP_NOT_FOUND);
         foreach ($this->paths[$domain->getName()][$domain->getStartId()] ?? [] as $clang => $clangUrl) {
@@ -284,10 +284,6 @@ class PathResolver
 
     private function coreForcesScheme(): bool
     {
-        $useHttps = Core::getProperty('use_https');
-
-        return true === $useHttps
-            || (Environment::Frontend === Core::getEnvironment() && 'frontend' === $useHttps)
-            || (Environment::Backend === Core::getEnvironment() && 'backend' === $useHttps);
+        return Response::$forceHttps;
     }
 }

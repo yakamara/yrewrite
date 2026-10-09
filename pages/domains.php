@@ -32,7 +32,7 @@ if ('delete' === $func) {
     if (!$csrf->isValid()) {
         echo Message::error(I18n::msg('csrf_token_invalid'));
     } else {
-        Sql::factory()->setQuery('DELETE FROM ' . Core::getTable('yrewrite_domain') . ' WHERE id = ?', [$dataId]);
+        Sql::factory()->setQuery('DELETE FROM ' . (Core::TABLE_PREFIX . 'yrewrite_domain') . ' WHERE id = ?', [$dataId]);
         echo Message::success($this->i18n('domain_deleted'));
         YRewrite::deleteCache();
     }
@@ -45,12 +45,12 @@ if ('edit' === $func || 'add' === $func) {
     // clear the rewrite cache whenever the domain form was saved
     Extension::register('REX_FORM_SAVED', static function (ExtensionPoint $ep): void {
         $form = $ep->getParam('form');
-        if ($form instanceof Form && $form->getTableName() === Core::getTable('yrewrite_domain')) {
+        if ($form instanceof Form && $form->getTableName() === (Core::TABLE_PREFIX . 'yrewrite_domain')) {
             YRewrite::deleteCache();
         }
     });
 
-    $form = Form::factory(Core::getTable('yrewrite_domain'), '', 'id = ' . $dataId, 'post', false);
+    $form = Form::factory((Core::TABLE_PREFIX . 'yrewrite_domain'), '', 'id = ' . $dataId, 'post', false);
     $form->addParam('data_id', $dataId);
     $form->setApplyUrl(Url::currentBackendPage());
     $form->setEditMode('edit' === $func);
@@ -154,11 +154,11 @@ if ('edit' === $func || 'add' === $func) {
 }
 
 if ($showlist) {
-    $list = DataList::factory('SELECT * FROM ' . Core::getTable('yrewrite_domain') . ' ORDER BY domain', 100);
+    $list = DataList::factory('SELECT * FROM ' . (Core::TABLE_PREFIX . 'yrewrite_domain') . ' ORDER BY domain', 100);
     $list->addParam('page', 'yrewrite/domains');
 
     $tdIcon = '<i class="rex-icon fa-sitemap"></i>';
-    $thIcon = '<a href="' . $list->getUrl(['func' => 'add']) . '"' . Core::getAccesskey($this->i18n('add_domain'), 'add') . '><i class="rex-icon rex-icon-add"></i></a>';
+    $thIcon = '<a href="' . $list->getUrl(['func' => 'add']) . '"' . \Redaxo\Core\Backend\Accesskey::attributes($this->i18n('add_domain'), 'add') . '><i class="rex-icon rex-icon-add"></i></a>';
     $list->addColumn($thIcon, $tdIcon, 0, ['<th class="rex-table-icon">###VALUE###</th>', '<td class="rex-table-icon">###VALUE###</td>']);
     $list->setColumnParams($thIcon, ['func' => 'edit', 'data_id' => '###id###']);
 

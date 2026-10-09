@@ -48,8 +48,21 @@ URLs like `/en/news/archive/`, supports multiple domains/languages, and provides
 `sitemap.xml` and `robots.txt` are generated ad hoc per domain (rewritten to
 `index.php?rex_yrewrite_func=sitemap|robots`).
 
-> The addon routes all `/media/...` requests through the media manager. Do not create a structure
-> category named "Media" and do not put frontend assets (CSS/JS) under `/media/` — use `/assets/`.
+> The addon routes `/media/<type>/<file>` requests through the media manager — that is the URL shape
+> `YRewrite::rewriteMedia()` generates on `MEDIA_MANAGER_URL`. Plain `/media/<file>` (what
+> `Url::media()` returns) must stay a **static** file, served by the `!-f` condition. Do not create a
+> structure category named "Media" and do not put frontend assets (CSS/JS) under `/media/` — use
+> `/assets/`. Media *subfolders* are still shadowed by the two-segment rule.
+
+> **Existing document roots may still carry a stale `/media/` catch-all.** `setup/.htaccess` used to
+> ship a `^media/(.*)` rule routing every `/media/<file>` through `rex_media_type=yrewrite_default`.
+> R5's yrewrite created that type on install; **yrewrite 3 does not** (`YRewriteAddon::install()` only
+> creates `yrewrite_seo_image`). Unknown type → `MediaTypeRegistry::has()` is false →
+> `MediaManager::init()` returns without delivering → REDAXO answers as a normal page → **404 for
+> every original media file**, even though it is on disk (the rule sits *above* the `!-f`/`!-d`
+> conditions). The shipped file no longer contains it, but the Setup button only writes on click:
+> **any project that ran Setup before still has the rule in its `public/.htaccess`.** Check with
+> `grep yrewrite_default public/.htaccess` and delete the line, or re-run Setup.
 
 ## Backend tabs
 
@@ -205,11 +218,29 @@ location / { try_files $uri $uri/ /index.php$is_args$args; }
 rewrite ^/sitemap\.xml$  /index.php?rex_yrewrite_func=sitemap last;
 rewrite ^/robots\.txt$   /index.php?rex_yrewrite_func=robots last;
 rewrite ^/media/([^/]*)/([^/]*)  /index.php?rex_media_type=$1&rex_media_file=$2&$args;
-rewrite ^/media/(.*)             /index.php?rex_media_type=yrewrite_default&rex_media_file=$1&$query_string;
 ```
+
+Only the two-segment media-manager form is rewritten. A single-segment `/media/<file>` is the
+unprocessed pool file behind `Url::media()` and is served statically by `try_files` — do **not** add a
+`rewrite ^/media/(.*) … rex_media_type=yrewrite_default …` catch-all. That type does not exist in
+yrewrite 3 and the rule 404s every original file (see the Setup section).
 
 ## Gotchas
 
+- **Media-manager responses must not be resolved as articles.** `MediaManager::init()` (core) and the
+  addon's own listener both hang on `PACKAGES_INCLUDED` / `ExtensionLevel::Early`; within a level the
+  registration order decides, and the addon wins. Without a guard `PathResolver` finds no article for
+  a `/media/<type>/<file>` URL and calls `Response::setStatus(404)`; `MediaManager` then delivers the
+  correctly generated image, but `Response::sendFile()` sends the stored status along with it — a
+  200-worthy image answered with **404**. Browsers still display it, caches and CDNs treat it as an
+  error. `YRewrite::prepare()` therefore returns early when `rex_media_type` **and** `rex_media_file`
+  are present in the request. Keep that guard first in the method; anything before it can leave state
+  behind on a request the addon never handles.
+- **`Url::media()` / `Url::frontend()` return *relative* URLs** (`./media/…`) in the frontend. On an
+  article whose URL ends in a slash — every category start article — the browser resolves them below
+  that path (`/leistungen/media/…` → 404). Article links are unaffected: the addon emits those
+  root-relative. A `<base>` tag is not the fix (see below); anchor media URLs at the domain root
+  instead, e.g. in `YRewrite::rewriteMedia()`, which already knows the sub path via `getSubPath()`.
 - Settings under core *System* (website URL, start/error article) are ignored while yrewrite is active.
 - With a single configured domain, leave the "mount point" empty.
 - Do not use a `<base>` tag in templates — URLs may include the domain depending on context.

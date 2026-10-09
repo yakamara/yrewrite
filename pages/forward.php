@@ -41,7 +41,7 @@ if ('delete' === $func) {
     if (!$csrf->isValid()) {
         echo Message::error(I18n::msg('csrf_token_invalid'));
     } else {
-        Sql::factory()->setQuery('DELETE FROM ' . Core::getTable('yrewrite_forward') . ' WHERE id = ?', [$dataId]);
+        Sql::factory()->setQuery('DELETE FROM ' . (Core::TABLE_PREFIX . 'yrewrite_forward') . ' WHERE id = ?', [$dataId]);
         echo Message::success($this->i18n('forward_deleted'));
         Forward::init();
         Forward::generatePathFile();
@@ -51,7 +51,7 @@ if ('delete' === $func) {
 
 if ('status' === $func) {
     $sql = Sql::factory();
-    $sql->setQuery('UPDATE ' . Core::getTable('yrewrite_forward') . ' SET status = 1 - status WHERE id = ?', [Request::request('oid', 'int')]);
+    $sql->setQuery('UPDATE ' . (Core::TABLE_PREFIX . 'yrewrite_forward') . ' SET status = 1 - status WHERE id = ?', [Request::request('oid', 'int')]);
     Forward::init();
     Forward::generatePathFile();
     $func = '';
@@ -62,13 +62,13 @@ if ('edit' === $func || 'add' === $func) {
 
     Extension::register('REX_FORM_SAVED', static function (ExtensionPoint $ep): void {
         $form = $ep->getParam('form');
-        if ($form instanceof Form && $form->getTableName() === Core::getTable('yrewrite_forward')) {
+        if ($form instanceof Form && $form->getTableName() === (Core::TABLE_PREFIX . 'yrewrite_forward')) {
             Forward::init();
             Forward::generatePathFile();
         }
     });
 
-    $form = Form::factory(Core::getTable('yrewrite_forward'), '', 'id = ' . $dataId);
+    $form = Form::factory((Core::TABLE_PREFIX . 'yrewrite_forward'), '', 'id = ' . $dataId);
     $form->addParam('data_id', $dataId);
     $form->setApplyUrl(Url::currentBackendPage());
     $form->setEditMode('edit' === $func);
@@ -82,7 +82,7 @@ if ('edit' === $func || 'add' === $func) {
     $field = $form->addSelectField('domain_id');
     $field->setLabel($this->i18n('domain'));
     $select = $field->getSelect();
-    $select->addSqlOptions('SELECT domain, id FROM ' . Core::getTable('yrewrite_domain') . ' ORDER BY domain');
+    $select->addSqlOptions('SELECT domain, id FROM ' . (Core::TABLE_PREFIX . 'yrewrite_domain') . ' ORDER BY domain');
 
     $field = $form->addTextField('url');
     $field->setLabel($this->i18n('forward_url'));
@@ -168,11 +168,11 @@ if ('edit' === $func || 'add' === $func) {
 }
 
 if ($showlist) {
-    $list = DataList::factory('SELECT * FROM ' . Core::getTable('yrewrite_forward') . ' ORDER BY id DESC', 100);
+    $list = DataList::factory('SELECT * FROM ' . (Core::TABLE_PREFIX . 'yrewrite_forward') . ' ORDER BY id DESC', 100);
     $list->addParam('page', 'yrewrite/forward');
 
     $tdIcon = '<i class="rex-icon fa-sitemap"></i>';
-    $thIcon = '<a href="' . $list->getUrl(['func' => 'add']) . '"' . Core::getAccesskey($this->i18n('forward_add'), 'add') . '><i class="rex-icon rex-icon-add"></i></a>';
+    $thIcon = '<a href="' . $list->getUrl(['func' => 'add']) . '"' . \Redaxo\Core\Backend\Accesskey::attributes($this->i18n('forward_add'), 'add') . '><i class="rex-icon rex-icon-add"></i></a>';
     $list->addColumn($thIcon, $tdIcon, 0, ['<th class="rex-table-icon">###VALUE###</th>', '<td class="rex-table-icon">###VALUE###</td>']);
     $list->setColumnParams($thIcon, ['func' => 'edit', 'data_id' => '###id###']);
 

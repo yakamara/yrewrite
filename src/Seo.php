@@ -3,7 +3,6 @@
 namespace Yakamara\YRewrite;
 
 use Redaxo\Core\Content\Article;
-use Redaxo\Core\Core;
 use Redaxo\Core\ExtensionPoint\Extension;
 use Redaxo\Core\ExtensionPoint\ExtensionPoint;
 use Redaxo\Core\Http\Response;
@@ -11,8 +10,8 @@ use Redaxo\Core\Language\Language;
 use Redaxo\Core\MediaManager\MediaManager;
 use Redaxo\Core\MediaPool\Media;
 
+use function count;
 use function in_array;
-
 use function Redaxo\Core\View\escape;
 
 use const DATE_W3C;
@@ -133,7 +132,8 @@ class Seo
         }
 
         $title = str_replace('%T', (string) $this->article?->getValue('name'), $title);
-        $title = str_replace('%SN', Core::getServerName(), $title);
+        // REDAXO 6 has no server name setting any more; the host of the request takes its place.
+        $title = str_replace('%SN', (string) YRewrite::getHost(), $title);
 
         return $this->cleanString($title);
     }
@@ -152,7 +152,7 @@ class Seo
     {
         $canonicalUrl = trim((string) $this->article?->getValue(self::$metaCanonicalUrlField));
         if ('' === $canonicalUrl && null !== $this->article) {
-            $canonicalUrl = YRewrite::getFullUrlByArticleId($this->article->id, $this->article->clangId);
+            $canonicalUrl = YRewrite::getFullUrlByArticleId($this->article->id, $this->article->languageId);
         }
         return (string) Extension::dispatch(new ExtensionPoint('YREWRITE_CANONICAL_URL', $canonicalUrl, ['article' => $this->article]));
     }
