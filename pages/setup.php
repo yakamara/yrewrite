@@ -8,7 +8,12 @@ use Redaxo\Core\Filesystem\Url;
 use Redaxo\Core\Http\Request;
 use Redaxo\Core\Security\CsrfToken;
 use Redaxo\Core\Translation\I18n;
-use Redaxo\Core\View\Fragment;
+use Redaxo\Core\Util\Str;
+use Redaxo\Core\View\Component\Section;
+use Redaxo\Core\View\Component\Table;
+use Redaxo\Core\View\Component\TableColumn;
+use Redaxo\Core\View\Html;
+use Redaxo\Core\View\HtmlAttributes;
 use Redaxo\Core\View\Message;
 use Yakamara\YRewrite\Settings;
 use Yakamara\YRewrite\YRewrite;
@@ -30,17 +35,17 @@ if ('' !== $func) {
     }
 }
 
-$exampleCode = highlight_string(<<<'PHP'
+$exampleCode = Str::highlight(<<<'PHP'
 <?php
     $seo = new \Yakamara\YRewrite\Seo();
     echo $seo->getTags();
 ?>
-PHP, true);
+PHP);
 
 $content = '
     <h3>' . $this->i18n('htaccess_set') . '</h3>
     <p>' . I18n::rawMsg('yrewrite_htaccess_info') . '</p>
-    <p><a class="btn btn-primary" href="' . Url::currentBackendPage(['func' => 'htaccess'] + $csrf->getUrlParams()) . '">' . $this->i18n('htaccess_set') . '</a></p>
+    <p><a class="rex-button" data-variant="primary" href="' . Url::currentBackendPage(['func' => 'htaccess'] + $csrf->getUrlParams()) . '">' . $this->i18n('htaccess_set') . '</a></p>
 
     <h3>' . $this->i18n('info_headline') . '</h3>
     <p>' . I18n::rawMsg('yrewrite_info_text') . '</p>
@@ -49,34 +54,30 @@ $content = '
     <p>' . I18n::rawMsg('yrewrite_info_tipps_text') . '</p>
 
     <h3>' . $this->i18n('info_seo') . '</h3>
-    <p>' . I18n::rawMsg('yrewrite_info_seo_text') . '<br /><br />' . $exampleCode . '</p>
+    <p>' . I18n::rawMsg('yrewrite_info_seo_text') . '</p>' . $exampleCode . '
 ';
 
-$fragment = new Fragment();
-$fragment->setVar('title', $this->i18n('setup'));
-$fragment->setVar('body', $content, false);
-echo $fragment->parse('core/page/section.php');
+echo new Section($this->i18n('setup'), body: Html::raw($content))->render();
 
 // visibility settings form
 echo Settings::processFormPost();
 echo Settings::getForm();
 
 // sitemap / robots overview per configured domain
+$link = static fn (string $url, string $label): Html => Html::raw('<a target="_blank" href="' . escape($url) . '">' . escape($label) . '</a>');
 $domains = [];
 foreach (YRewrite::getDomains() as $name => $domain) {
     if ('default' !== $name) {
-        $domains[] = '<tr><td><a target="_blank" href="' . escape($domain->getUrl()) . '">' . escape($name) . '</a></td>'
-            . '<td><a target="_blank" href="' . escape($domain->getUrl()) . 'sitemap.xml">sitemap.xml</a></td>'
-            . '<td><a target="_blank" href="' . escape($domain->getUrl()) . 'robots.txt">robots.txt</a></td></tr>';
+        $domains[] = [
+            $link($domain->getUrl(), $name),
+            $link($domain->getUrl() . 'sitemap.xml', 'sitemap.xml'),
+            $link($domain->getUrl() . 'robots.txt', 'robots.txt'),
+        ];
     }
 }
 
-$tables = '<table class="table table-hover">
-    <tr><th>Domain</th><th>Sitemap</th><th>robots.txt</th></tr>
-    ' . implode('', $domains) . '
-    </table>';
-
-$fragment = new Fragment();
-$fragment->setVar('title', $this->i18n('info_sitemaprobots'));
-$fragment->setVar('content', $tables, false);
-echo $fragment->parse('core/page/section.php');
+echo new Section($this->i18n('info_sitemaprobots'), content: new Table([
+    TableColumn::forKey('Domain', 0),
+    TableColumn::forKey('Sitemap', 1),
+    TableColumn::forKey('robots.txt', 2),
+], $domains, attributes: new HtmlAttributes(['data-hover' => true])))->render();

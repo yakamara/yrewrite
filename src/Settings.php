@@ -6,7 +6,10 @@ use Redaxo\Core\Addon\Addon;
 use Redaxo\Core\Core;
 use Redaxo\Core\Filesystem\Url;
 use Redaxo\Core\Http\Request;
+use Redaxo\Core\View\Component\Section;
+use Redaxo\Core\View\Component\SectionVariant;
 use Redaxo\Core\View\Fragment;
+use Redaxo\Core\View\Html;
 use Redaxo\Core\View\Message;
 
 /**
@@ -63,7 +66,7 @@ class Settings
         $checkboxes = $fragment->parse('core/form/checkbox.php');
 
         $submitElements = [
-            ['field' => '<button class="btn btn-save rex-form-aligned" type="submit" name="submit" value="1" ' . \Redaxo\Core\Backend\Accesskey::attributes($addon->i18n('save'), 'save') . '>' . $addon->i18n('save') . '</button>'],
+            ['field' => '<button class="rex-button rex-form-aligned" data-variant="success" type="submit" name="submit" value="1" ' . \Redaxo\Core\Backend\Accesskey::attributes($addon->i18n('save'), 'save') . '>' . $addon->i18n('save') . '</button>'],
         ];
 
         $fragment = new Fragment();
@@ -71,15 +74,9 @@ class Settings
         $fragment->setVar('elements', $submitElements, false);
         $submit = $fragment->parse('core/form/submit.php');
 
-        $fragment = new Fragment();
-        $fragment->setVar('class', 'edit');
-        $fragment->setVar('title', $addon->i18n('settings'));
-        $fragment->setVar('body', $checkboxes, false);
-        $fragment->setVar('buttons', $submit, false);
-
         return '
             <form action="' . Url::currentBackendPage() . '" method="post">
-                ' . $fragment->parse('core/page/section.php') . '
+                ' . new Section($addon->i18n('settings'), Html::raw($checkboxes), footer: Html::raw($submit), variant: SectionVariant::Edit)->render() . '
             </form>
         ';
     }
