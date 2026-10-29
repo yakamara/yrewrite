@@ -6,24 +6,27 @@
 
 use Redaxo\Core\Core;
 use Redaxo\Core\Database\Sql;
-use Redaxo\Core\ExtensionPoint\Extension;
-use Redaxo\Core\ExtensionPoint\ExtensionPoint;
 use Redaxo\Core\Filesystem\Url;
 use Redaxo\Core\Form\Form;
 use Redaxo\Core\Http\Request;
-use Redaxo\Core\Language\Language;
+use Redaxo\Core\Http\Response;
 use Redaxo\Core\Security\CsrfToken;
 use Redaxo\Core\Translation\I18n;
-use Redaxo\Core\Validator\ValidationRule;
+use Redaxo\Core\View\Component\ColumnType;
+use Redaxo\Core\View\Component\Section;
 use Redaxo\Core\View\DataList;
-use Redaxo\Core\View\Fragment;
+use Redaxo\Core\View\Html;
 use Redaxo\Core\View\Message;
+use Yakamara\YRewrite\Backend\AliasData;
 use Yakamara\YRewrite\YRewrite;
+
+use function Redaxo\Core\View\escape;
 
 $showlist = true;
 $dataId = Request::request('data_id', 'int', 0);
 $func = Request::request('func', 'string');
 $csrf = CsrfToken::factory('yrewrite_alias_domains');
+$table = Core::TABLE_PREFIX . 'yrewrite_alias';
 
 // at least one real domain (besides "default") is required
 if (count(YRewrite::getDomains()) <= 1) {
@@ -36,7 +39,7 @@ if ('delete' === $func) {
     if (!$csrf->isValid()) {
         echo Message::error(I18n::msg('csrf_token_invalid'));
     } else {
-        Sql::factory()->setQuery('DELETE FROM ' . (Core::TABLE_PREFIX . 'yrewrite_alias') . ' WHERE id = ?', [$dataId]);
+        Sql::factory()->setQuery('DELETE FROM ' . $table . ' WHERE id = ?', [$dataId]);
         echo Message::success($this->i18n('domain_deleted'));
         YRewrite::deleteCache();
     }
@@ -46,84 +49,67 @@ if ('delete' === $func) {
 if ('edit' === $func || 'add' === $func) {
     $showlist = false;
 
-    Extension::register('REX_FORM_SAVED', static function (ExtensionPoint $ep): void {
-        $form = $ep->getParam('form');
-        if ($form instanceof Form && $form->getTableName() === (Core::TABLE_PREFIX . 'yrewrite_alias')) {
-            YRewrite::deleteCache();
+    $row = 'edit' === $func ? (Sql::factory()->getArray('SELECT * FROM ' . $table . ' WHERE id = ?', [$dataId])[0] ?? null) : null;
+    if ('edit' === $func && null === $row) {
+        echo Message::error($this->i18n('no_domain_defined'));
+        $showlist = true;
+    } else {
+        $data = null !== $row ? AliasData::fromRow($row) : new AliasData();
+        $form = new Form($data, name: 'yrewrite_alias', title: 'edit' === $func ? $this->i18n('edit_domain') : $this->i18n('add_domain'), cancelUrl: Url::currentBackendPage());
+
+        if ($form->handleRequest()) {
+            if (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/', $data->aliasDomain)) {
+                $form->addError($this->i18n('domain_not_well_formed'), 'aliasDomain');
+            }
+            if ($form->isValid()) {
+                $sql = Sql::factory();
+                $sql->setTable($table);
+                $sql->setValues($data->toRow());
+                if (null !== $row) {
+                    $sql->setWhere(['id' => $dataId]);
+                    $sql->update();
+                } else {
+                    $sql->insert();
+                }
+                YRewrite::deleteCache();
+                Response::sendRedirect(Url::currentBackendPage(['info' => 'edit' === $func ? 'updated' : 'added']));
+            }
         }
-    });
 
-    $form = Form::factory((Core::TABLE_PREFIX . 'yrewrite_alias'), '', 'id = ' . $dataId);
-    $form->addParam('data_id', $dataId);
-    $form->setApplyUrl(Url::currentBackendPage());
-    $form->setEditMode('edit' === $func);
-
-    $field = $form->addTextField('alias_domain');
-    $field->setLabel($this->i18n('alias_domain_refersto'));
-    $field->setNotice($this->i18n('alias_domain_refersto_notice'));
-    $field->getValidator()
-        ->add(ValidationRule::NOT_EMPTY, $this->i18n('no_domain_defined'))
-        ->add(ValidationRule::MATCH, $this->i18n('domain_not_well_formed'), '/[a-zA-Z0-9][a-zA-Z0-9._-]*/');
-
-    $field = $form->addSelectField('domain_id');
-    $field->setLabel($this->i18n('domain_willbereferdto'));
-    $field->getValidator()->add(ValidationRule::NOT_EMPTY, $this->i18n('no_domain_defined'));
-    $select = $field->getSelect();
-    $select->addSqlOptions('SELECT domain, id FROM ' . (Core::TABLE_PREFIX . 'yrewrite_domain') . ' ORDER BY domain');
-
-    if (Language::count() > 1) {
-        $field = $form->addSelectField('clang_start');
-        $field->setLabel($this->i18n('clang_start'));
-        $select = $field->getSelect();
-        foreach (Language::getAll() as $clang) {
-            $select->addOption($clang->name, $clang->id);
-        }
+        echo $form->render();
     }
-
-    $content = $form->get();
-
-    $fragment = new Fragment();
-    $fragment->setVar('class', 'edit', false);
-    $fragment->setVar('title', 'edit' === $func ? $this->i18n('edit_domain') : $this->i18n('add_domain'));
-    $fragment->setVar('body', $content, false);
-    echo $fragment->parse('core/page/section.php');
 }
 
 if ($showlist) {
-    $list = DataList::factory('SELECT * FROM ' . (Core::TABLE_PREFIX . 'yrewrite_alias') . ' ORDER BY alias_domain', 100);
+    $info = Request::get('info', 'string', '');
+    if ('added' === $info) {
+        echo Message::success($this->i18n('domain_added'));
+    } elseif ('updated' === $info) {
+        echo Message::success($this->i18n('domain_updated'));
+    }
+
+    $list = new DataList('SELECT * FROM ' . $table . ' ORDER BY alias_domain', rowsPerPage: 100);
     $list->addParam('page', 'yrewrite/alias_domains');
+    $editUrl = static fn (array $row): string => $list->getUrl(['func' => 'edit', 'data_id' => $row['id']]);
 
-    $tdIcon = '<i class="rex-icon fa-sitemap"></i>';
-    $thIcon = '<a href="' . $list->getUrl(['func' => 'add']) . '"' . \Redaxo\Core\Backend\Accesskey::attributes($this->i18n('add_domain'), 'add') . '><i class="rex-icon rex-icon-add"></i></a>';
-    $list->addColumn($thIcon, $tdIcon, 0, ['<th class="rex-table-icon">###VALUE###</th>', '<td class="rex-table-icon">###VALUE###</td>']);
-    $list->setColumnParams($thIcon, ['func' => 'edit', 'data_id' => '###id###']);
+    $list->column(
+        'icon',
+        Html::raw('<a href="' . escape($list->getUrl(['func' => 'add'])) . '"' . \Redaxo\Core\Backend\Accesskey::attributes($this->i18n('add_domain'), 'add') . '><i class="rex-icon rex-icon-add"></i></a>'),
+        static fn (): Html => Html::raw('<i class="rex-icon fa-sitemap"></i>'),
+        type: ColumnType::Icon,
+        link: $editUrl,
+    );
+    $list->column('alias_domain', $this->i18n('alias_domain'));
+    $list->column('domain_id', $this->i18n('domain'), static fn (array $row): string => YRewrite::getDomainById((int) $row['domain_id'])?->getUrl() ?? '');
+    $list->column('edit', I18n::msg('edit'), static fn (): Html => Html::raw('<i class="rex-icon rex-icon-edit"></i> ' . I18n::msg('edit')), type: ColumnType::Action, link: $editUrl);
+    $list->column(
+        'delete',
+        null,
+        static fn (): Html => Html::raw('<i class="rex-icon rex-icon-delete"></i> ' . I18n::msg('delete')),
+        type: ColumnType::Action,
+        link: static fn (array $row): string => $list->getUrl(['data_id' => $row['id'], 'func' => 'delete'] + $csrf->getUrlParams()),
+        linkAttributes: ['data-confirm' => I18n::msg('delete') . ' ?'],
+    );
 
-    $list->setColumnParams('id', ['data_id' => '###id###', 'func' => 'edit']);
-    $list->setColumnSortable('id');
-    $list->removeColumn('id');
-    $list->removeColumn('clang_start');
-
-    $list->setColumnLabel('alias_domain', $this->i18n('alias_domain'));
-
-    $list->setColumnLabel('domain_id', $this->i18n('domain'));
-    $list->setColumnFormat('domain_id', 'custom', static function ($params) {
-        $domain = YRewrite::getDomainById((int) $params['subject']);
-        return $domain ? $domain->getUrl() : '';
-    });
-
-    $list->addColumn(I18n::msg('edit'), '<i class="rex-icon rex-icon-edit"></i> ' . I18n::msg('edit'));
-    $list->setColumnLayout(I18n::msg('edit'), ['<th class="rex-table-action" colspan="2">###VALUE###</th>', '<td class="rex-table-action">###VALUE###</td>']);
-    $list->setColumnParams(I18n::msg('edit'), ['data_id' => '###id###', 'func' => 'edit']);
-
-    $list->addColumn(I18n::msg('delete'), '<i class="rex-icon rex-icon-delete"></i> ' . I18n::msg('delete'));
-    $list->setColumnLayout(I18n::msg('delete'), ['', '<td class="rex-table-action">###VALUE###</td>']);
-    $list->setColumnParams(I18n::msg('delete'), ['data_id' => '###id###', 'func' => 'delete'] + $csrf->getUrlParams());
-    $list->addLinkAttribute(I18n::msg('delete'), 'data-confirm', I18n::msg('delete') . ' ?');
-
-    $content = $list->get();
-
-    $fragment = new Fragment();
-    $fragment->setVar('title', $this->i18n('alias_domains'));
-    $fragment->setVar('content', $content, false);
-    echo $fragment->parse('core/page/section.php');
+    echo new Section($this->i18n('alias_domains'), content: $list)->render();
 }

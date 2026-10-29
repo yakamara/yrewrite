@@ -5,8 +5,25 @@ namespace Yakamara\YRewrite;
 use Override;
 use Redaxo\Core\Addon\Addon;
 use Redaxo\Core\Addon\LoadOrder;
+use Redaxo\Core\Addon\OwnedSchema;
 use Redaxo\Core\Backend\MainPage;
 use Redaxo\Core\Backend\Page;
+use Redaxo\Core\Content\ExtensionPoint\ArticleAdded;
+use Redaxo\Core\Content\ExtensionPoint\ArticleConvertedToCategory;
+use Redaxo\Core\Content\ExtensionPoint\ArticleConvertedToStartArticle;
+use Redaxo\Core\Content\ExtensionPoint\ArticleCopied;
+use Redaxo\Core\Content\ExtensionPoint\ArticleDeleted;
+use Redaxo\Core\Content\ExtensionPoint\ArticleMoved;
+use Redaxo\Core\Content\ExtensionPoint\ArticleStatusChanged;
+use Redaxo\Core\Content\ExtensionPoint\ArticleUpdated;
+use Redaxo\Core\Content\ExtensionPoint\ArticleUrl;
+use Redaxo\Core\Content\ExtensionPoint\CategoryAdded;
+use Redaxo\Core\Content\ExtensionPoint\CategoryConvertedToArticle;
+use Redaxo\Core\Content\ExtensionPoint\CategoryDeleted;
+use Redaxo\Core\Content\ExtensionPoint\CategoryMoved;
+use Redaxo\Core\Content\ExtensionPoint\CategoryStatusChanged;
+use Redaxo\Core\Content\ExtensionPoint\CategoryUpdated;
+use Redaxo\Core\Content\ExtensionPoint\ContentPageSidebar;
 use Redaxo\Core\Core;
 use Redaxo\Core\Database\Column;
 use Redaxo\Core\Database\Index;
@@ -16,10 +33,13 @@ use Redaxo\Core\ExtensionPoint\Extension;
 use Redaxo\Core\ExtensionPoint\ExtensionLevel;
 use Redaxo\Core\ExtensionPoint\ExtensionPoint;
 use Redaxo\Core\Http\Request;
+use Redaxo\Core\MediaManager\ExtensionPoint\MediaManagerUrl;
+use Redaxo\Core\Security\ContentSecurityPolicy;
 use Redaxo\Core\Security\Permission;
 use Redaxo\Core\Translation\I18n;
 use Redaxo\Core\View\Asset;
-use Redaxo\Core\View\Fragment;
+use Redaxo\Core\View\Component\Section;
+use Redaxo\Core\View\Html;
 
 use const PHP_SAPI;
 
@@ -48,6 +68,16 @@ class YRewriteAddon extends Addon
         Extension::register('PACKAGES_INCLUDED', function (): void {
             YRewrite::init();
 
+            // the backend previews articles of other domains in frames, e.g. in the article history
+            if (Core::isBackend()) {
+                foreach (YRewrite::getDomains() as $domain) {
+                    $url = parse_url($domain->getUrl());
+                    if (isset($url['scheme'], $url['host'])) {
+                        ContentSecurityPolicy::backend()->add('frame-src', $url['scheme'] . '://' . $url['host'] . (isset($url['port']) ? ':' . $url['port'] : ''));
+                    }
+                }
+            }
+
             if ('robots' === Request::request('rex_yrewrite_func', 'string')) {
                 new Seo()->sendRobotsTxt();
             }
@@ -57,56 +87,83 @@ class YRewriteAddon extends Addon
             // also be triggered headless (e.g. the api addon, console commands or cronjobs),
             // and the path cache has to be refreshed there too. These extension points only
             // fire when content actually changes, so there is no overhead on regular frontend
-            // requests.
-            $extensionPoints = [
-                'CAT_ADDED', 'CAT_UPDATED', 'CAT_DELETED', 'CAT_STATUS', 'CAT_MOVED',
-                'ART_ADDED', 'ART_UPDATED', 'ART_DELETED', 'ART_STATUS', 'ART_MOVED', 'ART_COPIED',
-                'ART_META_UPDATED', 'ART_TO_STARTARTICLE', 'ART_TO_CAT', 'CAT_TO_ART',
+            // requests. The typed points are mapped to the legacy names the path generator
+            // distinguishes; only the status and update points concern a single language.
+            $articlePoints = [
+                ArticleAdded::class => 'ART_ADDED',
+                ArticleUpdated::class => 'ART_UPDATED',
+                ArticleDeleted::class => 'ART_DELETED',
+                ArticleStatusChanged::class => 'ART_STATUS',
+                ArticleMoved::class => 'ART_MOVED',
+                ArticleCopied::class => 'ART_COPIED',
+                ArticleConvertedToStartArticle::class => 'ART_TO_STARTARTICLE',
+                CategoryConvertedToArticle::class => 'CAT_TO_ART',
             ];
-            foreach ($extensionPoints as $extensionPoint) {
-                Extension::register($extensionPoint, static function (ExtensionPoint $ep): void {
-                    $params = $ep->getParams();
-                    $params['subject'] = $ep->subject;
-                    $params['extension_point'] = $ep->name;
-                    YRewrite::generatePathFile($params);
+            foreach ($articlePoints as $class => $name) {
+                Extension::register($class, static function (ExtensionPoint $ep) use ($name): void {
+                    /** @var ArticleAdded|ArticleUpdated|ArticleDeleted|ArticleStatusChanged|ArticleMoved|ArticleCopied|ArticleConvertedToStartArticle|CategoryConvertedToArticle $ep */
+                    $article = $ep->article;
+                    YRewrite::generatePathFile([
+                        'id' => $article->id,
+                        'parent_id' => $article->categoryId ?? 0,
+                        'extension_point' => $name,
+                    ] + (in_array($name, ['ART_UPDATED', 'ART_STATUS'], true) ? ['language' => $article->languageId] : []));
+                });
+            }
+            $categoryPoints = [
+                CategoryAdded::class => 'CAT_ADDED',
+                CategoryUpdated::class => 'CAT_UPDATED',
+                CategoryDeleted::class => 'CAT_DELETED',
+                CategoryStatusChanged::class => 'CAT_STATUS',
+                CategoryMoved::class => 'CAT_MOVED',
+                ArticleConvertedToCategory::class => 'ART_TO_CAT',
+            ];
+            foreach ($categoryPoints as $class => $name) {
+                Extension::register($class, static function (ExtensionPoint $ep) use ($name): void {
+                    /** @var CategoryAdded|CategoryUpdated|CategoryDeleted|CategoryStatusChanged|CategoryMoved|ArticleConvertedToCategory $ep */
+                    $category = $ep->category;
+                    YRewrite::generatePathFile([
+                        'id' => $category->id,
+                        'parent_id' => $category->parentId ?? 0,
+                        'extension_point' => $name,
+                    ] + (in_array($name, ['CAT_UPDATED', 'CAT_STATUS'], true) ? ['language' => $category->languageId] : []));
                 });
             }
 
             // Backend-only UI: per-article URL & SEO panels in the structure content sidebar.
             if (Core::isBackend()) {
                 $user = Core::getUser();
+                $panelParams = static fn (ContentPageSidebar $ep): array => [
+                    'article_id' => $ep->article->id,
+                    'language' => $ep->article->languageId,
+                    'content_section_id' => $ep->contentSectionId,
+                    'page' => $ep->page,
+                ];
                 if (!$this->getConfig('hide_url_block') && $user?->hasPerm('yrewrite[url]')) {
-                    Extension::register('STRUCTURE_CONTENT_SIDEBAR', function (ExtensionPoint $ep): string {
-                        $panel = (string) $this->includeFile('pages/content.yrewrite_url.php', ['params' => $ep->getParams()]);
-                        $fragment = new Fragment();
-                        $fragment->setVar('title', '<i class="rex-icon rex-icon-info"></i> ' . $this->i18n('rewriter'), false);
-                        $fragment->setVar('body', $panel, false);
-                        $fragment->setVar('collapse', true);
-                        $fragment->setVar('collapsed', false);
-                        return $ep->subject . $fragment->parse('core/page/section.php');
+                    Extension::register(ContentPageSidebar::class, function (ContentPageSidebar $ep) use ($panelParams): string {
+                        $panel = (string) $this->includeFile('pages/content.yrewrite_url.php', ['params' => $panelParams($ep)]);
+                        return $ep->subject . new Section(Html::raw('<i class="rex-icon rex-icon-info"></i> ' . $this->i18n('rewriter')), Html::raw($panel), collapsible: true)->render();
                     });
                 }
                 if (!$this->getConfig('hide_seo_block') && $user?->hasPerm('yrewrite[seo]')) {
-                    Extension::register('STRUCTURE_CONTENT_SIDEBAR', function (ExtensionPoint $ep): string {
-                        $panel = (string) $this->includeFile('pages/content.yrewrite_seo.php', ['params' => $ep->getParams()]);
-                        $fragment = new Fragment();
-                        $fragment->setVar('title', '<i class="rex-icon rex-icon-info"></i> ' . $this->i18n('rewriter_seo'), false);
-                        $fragment->setVar('body', $panel, false);
-                        $fragment->setVar('collapse', true);
-                        $fragment->setVar('collapsed', false);
-                        return $ep->subject . $fragment->parse('core/page/section.php');
+                    Extension::register(ContentPageSidebar::class, function (ContentPageSidebar $ep) use ($panelParams): string {
+                        $panel = (string) $this->includeFile('pages/content.yrewrite_seo.php', ['params' => $panelParams($ep)]);
+                        return $ep->subject . new Section(Html::raw('<i class="rex-icon rex-icon-info"></i> ' . $this->i18n('seo')), Html::raw($panel), collapsible: true)->render();
                     });
                 }
             }
 
-            Extension::register('URL_REWRITE', static function (ExtensionPoint $ep): string {
-                $params = $ep->getParams();
-                $params['subject'] = $ep->subject;
-                return YRewrite::rewrite($params);
+            Extension::register(ArticleUrl::class, static function (ArticleUrl $ep): string {
+                return YRewrite::rewrite([
+                    'subject' => $ep->subject,
+                    'id' => $ep->articleId,
+                    'language' => $ep->languageId,
+                    'params' => $ep->params,
+                ]);
             });
 
-            Extension::register('MEDIA_MANAGER_URL', static function (ExtensionPoint $ep): string {
-                return YRewrite::rewriteMedia($ep->getParams());
+            Extension::register(MediaManagerUrl::class, static function (MediaManagerUrl $ep): string {
+                return YRewrite::rewriteMedia(['type' => $ep->type, 'file' => $ep->fileName, 'buster' => $ep->buster]);
             });
 
             if ('cli' !== PHP_SAPI) {
@@ -134,7 +191,6 @@ class YRewriteAddon extends Addon
         $main = new MainPage('addons', 'yrewrite', 'YRewrite');
         $main->setRequiredPermissions('yrewrite[forward]');
         $main->setPath($this->getPath('pages/index.php'));
-        $main->setPjax();
 
         $main->addSubpage(
             new Page('domains', $this->i18n('domains'))
@@ -234,77 +290,19 @@ class YRewriteAddon extends Addon
         $c->setQuery('ALTER TABLE `' . (Core::TABLE_PREFIX . 'yrewrite_alias') . '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
         $c->setQuery('ALTER TABLE `' . (Core::TABLE_PREFIX . 'yrewrite_forward') . '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
 
-        // Add media manager type.
-        //
-        // Guarded by the table's existence: current redaxo/core 6 registers media
-        // types from #[AsMediaType] classes and no longer ships
-        // rex_media_manager_type. On such an installation the seo image type is
-        // simply absent — install must not fail over it.
-        if (Table::get(Core::TABLE_PREFIX . 'media_manager_type')->exists()) {
-            $c->setQuery('SELECT * FROM ' . (Core::TABLE_PREFIX . 'media_manager_type') . " WHERE name = 'yrewrite_seo_image'");
-            if (0 === $c->getRows()) {
-                $type = Sql::factory();
-                $type->setTable(Core::TABLE_PREFIX . 'media_manager_type');
-                $type->setValue('status', 0);
-                $type->setValue('name', 'yrewrite_seo_image');
-                $type->setValue('description', 'Rewrite SEO preview image for sitemap and open graph tags');
-                $type->addGlobalCreateFields();
-                $type->addGlobalUpdateFields();
-                $type->insert();
-                $lastId = $type->getLastId();
-
-                $effect = Sql::factory();
-                $effect->setTable(Core::TABLE_PREFIX . 'media_manager_type_effect');
-                $effect->setValue('type_id', $lastId);
-                $effect->setValue('effect', 'resize');
-                $effect->setValue('parameters', '{"rex_effect_resize":{"rex_effect_resize_width":"4096","rex_effect_resize_height":"4096","rex_effect_resize_style":"maximum","rex_effect_resize_allow_enlarge":"not_enlarge"}}');
-                $effect->setValue('priority', 1);
-                $effect->addGlobalCreateFields();
-                $effect->addGlobalUpdateFields();
-                $effect->insert();
-            }
-        }
-
         Addon::require('yrewrite')->clearCache();
     }
 
     #[Override]
-    public function uninstall(): void
+    public function getOwnedSchema(): OwnedSchema
     {
-        // drop the addon's own tables
-        foreach (['yrewrite_domain', 'yrewrite_alias', 'yrewrite_forward'] as $table) {
-            $t = Table::get(Core::TABLE_PREFIX . $table);
-            if ($t->exists()) {
-                $t->drop();
-            }
-        }
-
-        // remove the columns added to the article table
-        $article = Table::get(Core::TABLE_PREFIX . 'article');
-        $changed = false;
-        foreach ([
-            'yrewrite_url_type', 'yrewrite_url', 'yrewrite_redirection', 'yrewrite_title',
-            'yrewrite_description', 'yrewrite_image', 'yrewrite_changefreq', 'yrewrite_priority',
-            'yrewrite_index', 'yrewrite_canonical_url',
-        ] as $column) {
-            if ($article->hasColumn($column)) {
-                $article->removeColumn($column);
-                $changed = true;
-            }
-        }
-        if ($changed) {
-            $article->alter();
-        }
-
-        // remove the media manager type and its effects
-        $sql = Sql::factory();
-        $sql->setQuery('SELECT id FROM ' . (Core::TABLE_PREFIX . 'media_manager_type') . " WHERE name = 'yrewrite_seo_image'");
-        if ($sql->getRows() > 0) {
-            $typeId = (int) $sql->getValue('id');
-            Sql::factory()->setQuery('DELETE FROM ' . (Core::TABLE_PREFIX . 'media_manager_type_effect') . ' WHERE type_id = ?', [$typeId]);
-            Sql::factory()->setQuery('DELETE FROM ' . (Core::TABLE_PREFIX . 'media_manager_type') . ' WHERE id = ?', [$typeId]);
-        }
-
-        $this->clearCache();
+        return new OwnedSchema(
+            tables: [Core::TABLE_PREFIX . 'yrewrite_domain', Core::TABLE_PREFIX . 'yrewrite_alias', Core::TABLE_PREFIX . 'yrewrite_forward'],
+            columns: [Core::TABLE_PREFIX . 'article' => [
+                'yrewrite_url_type', 'yrewrite_url', 'yrewrite_redirection', 'yrewrite_title',
+                'yrewrite_description', 'yrewrite_image', 'yrewrite_changefreq', 'yrewrite_priority',
+                'yrewrite_index', 'yrewrite_canonical_url',
+            ]],
+        );
     }
 }
