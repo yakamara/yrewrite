@@ -14,7 +14,7 @@ use Redaxo\Core\Http\Response;
 use Redaxo\Core\Language\Language;
 use Redaxo\Core\Security\CsrfToken;
 use Redaxo\Core\Translation\I18n;
-use Redaxo\Core\View\Component\ColumnType;
+use Redaxo\Core\View\Component\TableColumnType;
 use Redaxo\Core\View\Component\Section;
 use Redaxo\Core\View\DataList;
 use Redaxo\Core\View\Html;
@@ -113,7 +113,7 @@ if ($showlist) {
         'icon',
         Html::raw('<a href="' . escape($list->getUrl(['func' => 'add'])) . '"' . \Redaxo\Core\Backend\Accesskey::attributes($this->i18n('add_domain'), 'add') . '><i class="rex-icon rex-icon-add"></i></a>'),
         static fn (): Html => Html::raw('<i class="rex-icon fa-sitemap"></i>'),
-        type: ColumnType::Icon,
+        type: TableColumnType::Icon,
         link: $editUrl,
     );
 
@@ -152,12 +152,12 @@ if ($showlist) {
         }
         return implode(', ', $names);
     });
-    $list->column('edit', I18n::msg('edit'), static fn (): Html => Html::raw('<i class="rex-icon rex-icon-edit"></i> ' . I18n::msg('edit')), type: ColumnType::Action, link: $editUrl);
+    $list->column('edit', I18n::msg('edit'), static fn (): Html => Html::raw('<i class="rex-icon rex-icon-edit"></i> ' . I18n::msg('edit')), type: TableColumnType::Action, link: $editUrl);
     $list->column(
         'delete',
         null,
         static fn (): Html => Html::raw('<i class="rex-icon rex-icon-delete"></i> ' . I18n::msg('delete')),
-        type: ColumnType::Action,
+        type: TableColumnType::Action,
         link: static fn (array $row): string => $list->getUrl(['data_id' => $row['id'], 'func' => 'delete'] + $csrf->getUrlParams()),
         linkAttributes: ['data-confirm' => I18n::msg('delete') . ' ?'],
     );
