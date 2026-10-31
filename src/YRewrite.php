@@ -430,6 +430,9 @@ class YRewrite
                                     'type' => 'article',
                                     'domain_id' => $domainId,
                                     'url' => trim($oldArtPaths[$clangId], '/'),
+                                    // NOT NULL without default: strict mode rejects the row without them
+                                    'extern' => '',
+                                    'media' => '',
                                     'movetype' => '301',
                                     'status' => 1,
                                     'expiry_date' => $expiryDate,
