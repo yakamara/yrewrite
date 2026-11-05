@@ -26,6 +26,7 @@ Version 2.13.0 – 17.08.2026
 ### Verhaltensänderung
 
 * `<changefreq>` und `<priority>` werden nicht mehr in die Sitemap geschrieben — Google wertet beide Angaben seit Jahren nicht mehr aus (@tyrant88, #277). Die beiden Auswahlfelder entfallen deshalb im SEO-Block des Artikels. Die Datenbankspalten und die Properties von `rex_yrewrite_seo` bleiben erhalten, vorhandene Werte werden beim Speichern nicht angetastet.
+* Die Sitemap bindet kein XSL-Stylesheet mehr ein. Browser bauen XSLT gerade aus (Chrome hat das Abschalten angekündigt), dann bliebe die Ansicht ohnehin leer oder zeigte einen Fehler. Suchmaschinen werten das Stylesheet nicht aus, an der Sitemap selbst ändert sich nichts. Im Browser erscheint sie jetzt als XML. Die beiden Dateien unter `assets/xsl-stylesheets/` entfallen, ein Update räumt sie aus dem `assets`-Ordner.
 
 
 Version 2.12.1 – 16.08.2026
