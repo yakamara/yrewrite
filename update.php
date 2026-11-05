@@ -4,6 +4,9 @@
 
 require __DIR__ . '/install.php';
 
+// Die XSL-Darstellung der Sitemap ist entfallen, siehe CHANGELOG 2.13.0
+rex_dir::delete($this->getAssetsPath('xsl-stylesheets'));
+
 if (rex_version::compare($this->getVersion(), '2.1', '<=')) {
     $sql = rex_sql::factory();
 
