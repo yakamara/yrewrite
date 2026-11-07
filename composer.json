@@ -1,5 +1,6 @@
 {
     "name": "yakamara/redaxo_yrewrite",
+    "license": "MIT",
 
     "require": {
         "php": ">=8.1"
