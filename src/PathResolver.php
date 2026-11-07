@@ -10,6 +10,7 @@ use Redaxo\Core\ExtensionPoint\ExtensionPoint;
 use Redaxo\Core\Filesystem\Url;
 use Redaxo\Core\Http\Response;
 use Redaxo\Core\Language\Language;
+use Redaxo\Core\Security\BackendLogin;
 
 /**
  * Resolves an incoming request URL to a domain, article and language.
@@ -87,6 +88,12 @@ class PathResolver
 
         // normal exact check
         if ($result = $this->searchPath($domain, $url)) {
+            // offline articles are only visible with a backend session, like a missing article otherwise
+            if (!$this->isVisible((int) $result['article_id'], (int) $result['clang_id'])) {
+                $this->notFound($domain, $url);
+                return;
+            }
+
             Article::setCurrentId((int) $result['article_id']);
             Language::setCurrentId($result['clang_id']);
             return;
@@ -116,13 +123,23 @@ class PathResolver
                 $clang = Language::getCurrentId();
             }
 
-            if (Article::get($epParams['article_id'], $clang)) {
+            if (Article::get($epParams['article_id'], $clang) && $this->isVisible((int) $epParams['article_id'], $clang)) {
                 Article::setCurrentId((int) $epParams['article_id']);
                 Language::setCurrentId($clang);
                 return;
             }
         }
 
+        $this->notFound($domain, $url);
+    }
+
+    private function isVisible(int $articleId, int $clangId): bool
+    {
+        return (bool) Article::get($articleId, $clangId)?->isOnline() || BackendLogin::hasSession();
+    }
+
+    private function notFound(Domain $domain, string $url): void
+    {
         // no article found -> domain not found article
         Article::setCurrentId($domain->getNotfoundId());
         Language::setCurrentId($domain->getStartClang());
