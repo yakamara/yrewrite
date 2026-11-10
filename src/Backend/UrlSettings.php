@@ -11,7 +11,7 @@ use Redaxo\Core\Translation\Translatable;
 
 /**
  * Form data of the URL panel in the article content sidebar (`yrewrite_url_type`, `yrewrite_url`,
- * `yrewrite_redirection` of `rex_article`).
+ * `yrewrite_redirection` of `rex_article_translation`).
  *
  * `yrewrite_redirection` holds either an article id (internal) or a URL (external), so it is edited via two fields.
  *
