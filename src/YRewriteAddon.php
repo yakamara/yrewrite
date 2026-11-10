@@ -8,6 +8,7 @@ use Redaxo\Core\Addon\LoadOrder;
 use Redaxo\Core\Addon\OwnedSchema;
 use Redaxo\Core\Backend\MainPage;
 use Redaxo\Core\Backend\Page;
+use Redaxo\Core\Content\ArticleCache;
 use Redaxo\Core\Content\ExtensionPoint\ArticleAdded;
 use Redaxo\Core\Content\ExtensionPoint\ArticleConvertedToCategory;
 use Redaxo\Core\Content\ExtensionPoint\ArticleConvertedToStartArticle;
@@ -89,6 +90,17 @@ class YRewriteAddon extends Addon
             // fire when content actually changes, so there is no overhead on regular frontend
             // requests. The typed points are mapped to the legacy names the path generator
             // distinguishes; only the status and update points concern a single language.
+            // A copy keeps the fields of its source, a custom URL included: both would claim the same path
+            // and the URL of the source would open the copy. The copy gets an automatic URL again, before
+            // the path file is regenerated below.
+            Extension::register(ArticleCopied::class, static function (ArticleCopied $ep): void {
+                Sql::factory()->setQuery(
+                    'UPDATE ' . Core::TABLE_PREFIX . 'article_translation SET yrewrite_url_type = "AUTO", yrewrite_url = NULL WHERE article_id = ? AND yrewrite_url_type = "CUSTOM"',
+                    [$ep->article->id],
+                );
+                ArticleCache::delete($ep->article->id);
+            }, ExtensionLevel::Early);
+
             $articlePoints = [
                 ArticleAdded::class => 'ART_ADDED',
                 ArticleUpdated::class => 'ART_UPDATED',
