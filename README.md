@@ -87,6 +87,21 @@ Das AddOn legt unter *AddOns → YRewrite* folgende Reiter an:
 
 URL und SEO-Daten lassen sich zusätzlich direkt im Artikel-Editor in der Seitenleiste pflegen.
 
+## Extension Points
+
+| Extension Point | Subject | Parameter | Wofür |
+|---|---|---|---|
+| `YREWRITE_PREPARE` | `['article_id' => …, 'clang' => …]` oder `false` | `url`, `domain` | eigene URLs auflösen, die es in der Struktur nicht gibt |
+| `YREWRITE_SEO_TAGS` | Tags (Array, nach Schlüssel) | – | Meta-Tags ergänzen, ändern oder entfernen |
+| `YREWRITE_CANONICAL_URL` | Canonical-URL | `article` | Canonical-URL anpassen |
+| `YREWRITE_HREFLANG_TAGS` | hreflang-Links (Sprachcode => URL) | `article` | Sprachalternativen anpassen |
+| `YREWRITE_DOMAIN_SITEMAP` | `<url>`-Einträge einer Domain | `domain` | Einträge der Sitemap ergänzen |
+| `YREWRITE_SITEMAP` | alle `<url>`-Einträge | – | Sitemap anpassen |
+| `YREWRITE_ROBOTS` | Inhalt der `robots.txt` | `domain` (oder `null`) | Regeln ergänzen, z. B. für weitere AddOns |
+
+AddOns melden sich in `boot()` an. Im Projekt gehört die Anmeldung in `configure()`: `robots.txt`, Sitemap und das
+Auflösen der URL laufen in `PACKAGES_INCLUDED`, also vor `Project::boot()`.
+
 ## Lizenz
 
 MIT. Siehe Angaben in der `composer.json`.
