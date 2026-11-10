@@ -12,11 +12,11 @@ Branch `3.x`).
 
 - Mehrere Domains in einer Installation, optional pro Sprache (`clang`)
 - Sprechende, suchmaschinenfreundliche URLs in verschiedenen Schemata
-- Eigene URL pro Artikel sowie Umleitungen auf einen Artikel oder eine externe Adresse
+- Eigene URL pro Artikel und Sprache sowie Umleitungen auf einen Artikel oder eine externe Adresse
 - Allgemeine Weiterleitungen (301/302/303/307) für URLs, die es in der Struktur nicht gibt –
   praktisch beim Relaunch
 - Alias-Domains, die auf eine Hauptdomain weiterleiten
-- SEO-Daten pro Artikel: Titel, Description, Vorschaubild, Indexierung, Canonical-URL
+- SEO-Daten pro Artikel und Sprache: Titel, Description, Vorschaubild, Indexierung, Canonical-URL
 - `sitemap.xml` und `robots.txt`, domain- und sprachabhängig
 - Seitentitel-Schema pro Domain
 - Erweiterbar über eigene URL-Schemes und Extension Points
