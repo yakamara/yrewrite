@@ -39,7 +39,7 @@ if (null === $article) {
 
 $applyUrl = Url::backendPage($params['page'], ['article_id' => $articleId, 'language' => $clang, 'content_section_id' => $contentSectionId]);
 
-// The URL settings live on rex_article and apply to all languages.
+// The URL settings belong to this language version of the article (rex_article_translation).
 $data = UrlSettings::fromArticle($article);
 $form = new Form($data, name: 'yrewrite_url', vertical: true);
 
@@ -52,14 +52,15 @@ if ($form->handleRequest()) {
     }
     if ($form->isValid()) {
         $sql = Sql::factory();
-        $sql->setTable('rex_article');
-        $sql->setWhere(['id' => $articleId]);
+        $sql->setTable('rex_article_translation');
+        $sql->setWhere(['article_id' => $articleId, 'language_id' => $clang]);
         $sql->setValues($data->toRow());
         $sql->update();
 
         ArticleCache::delete($articleId);
         YRewrite::generatePathFile([
             'id' => $articleId,
+            'language' => $clang,
             'extension_point' => 'ART_UPDATED',
         ]);
 

@@ -12,7 +12,7 @@ use Redaxo\Core\Translation\Translatable;
 use Yakamara\YRewrite\Seo;
 
 /**
- * Form data of the SEO panel in the article content sidebar (`yrewrite_*` columns of `rex_article`).
+ * Form data of the SEO panel in the article content sidebar (`yrewrite_*` columns of `rex_article_translation`).
  *
  * @internal
  */
