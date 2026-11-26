@@ -8,6 +8,7 @@ use Redaxo\Core\Addon\LoadOrder;
 use Redaxo\Core\Addon\OwnedSchema;
 use Redaxo\Core\Backend\MainPage;
 use Redaxo\Core\Backend\Page;
+use Redaxo\Core\Content\ArticleCache;
 use Redaxo\Core\Content\ExtensionPoint\ArticleAdded;
 use Redaxo\Core\Content\ExtensionPoint\ArticleConvertedToCategory;
 use Redaxo\Core\Content\ExtensionPoint\ArticleConvertedToStartArticle;
@@ -89,6 +90,17 @@ class YRewriteAddon extends Addon
             // fire when content actually changes, so there is no overhead on regular frontend
             // requests. The typed points are mapped to the legacy names the path generator
             // distinguishes; only the status and update points concern a single language.
+            // A copy keeps the fields of its source, a custom URL included: both would claim the same path
+            // and the URL of the source would open the copy. The copy gets an automatic URL again, before
+            // the path file is regenerated below.
+            Extension::register(ArticleCopied::class, static function (ArticleCopied $ep): void {
+                Sql::factory()->setQuery(
+                    'UPDATE ' . Core::TABLE_PREFIX . 'article_translation SET yrewrite_url_type = "AUTO", yrewrite_url = NULL WHERE article_id = ? AND yrewrite_url_type = "CUSTOM"',
+                    [$ep->article->id],
+                );
+                ArticleCache::delete($ep->article->id);
+            }, ExtensionLevel::Early);
+
             $articlePoints = [
                 ArticleAdded::class => 'ART_ADDED',
                 ArticleUpdated::class => 'ART_UPDATED',
@@ -219,27 +231,37 @@ class YRewriteAddon extends Addon
     #[Override]
     public function install(): void
     {
-        // All URL/SEO columns are optional and therefore nullable: every INSERT into rex_article that
+        // The URL and SEO settings belong to a language version of an article, so they live on
+        // rex_article_translation (like the name and status of an article in REDAXO 6).
+        // All columns are optional and therefore nullable: every INSERT into rex_article_translation that
         // core (or an addon, or the API) performs sets only core's own columns, and MySQL strict mode
         // rejects a missing NOT NULL column without a default with "1364 Field ... doesn't have a
-        // default value" — which would break creating any article or category.
-        $table = Table::get(Core::TABLE_PREFIX . 'article');
+        // default value" — which would break creating any article, category or language.
+        $table = Table::get(Core::TABLE_PREFIX . 'article_translation');
         $urlTypeExists = $table->hasColumn('yrewrite_url_type');
-        $table
-            ->ensureColumn(new Column('yrewrite_url_type', "enum('AUTO','CUSTOM','REDIRECTION_INTERNAL','REDIRECTION_EXTERNAL')", false, 'AUTO'))
-            ->ensureColumn(new Column('yrewrite_url', 'text', true), 'yrewrite_url_type')
-            ->ensureColumn(new Column('yrewrite_redirection', 'varchar(191)', true), 'yrewrite_url')
-            ->ensureColumn(new Column('yrewrite_title', 'varchar(191)', true), 'yrewrite_redirection')
-            ->ensureColumn(new Column('yrewrite_description', 'text', true), 'yrewrite_title')
-            ->ensureColumn(new Column('yrewrite_image', 'varchar(191)', true), 'yrewrite_description')
-            ->ensureColumn(new Column('yrewrite_changefreq', 'varchar(10)', true), 'yrewrite_image')
-            ->ensureColumn(new Column('yrewrite_priority', 'varchar(5)', true), 'yrewrite_changefreq')
-            ->ensureColumn(new Column('yrewrite_index', 'tinyint(1)', true), 'yrewrite_priority')
-            ->ensureColumn(new Column('yrewrite_canonical_url', 'text', true), 'yrewrite_index')
-            ->alter();
+        $after = null;
+        foreach (self::articleColumns() as $column) {
+            $table->ensureColumn($column, $after);
+            $after = $column->name;
+        }
+        $table->alter();
+
+        // Earlier versions stored the settings on rex_article, shared by all languages: copy them to
+        // every language version, then drop the old columns.
+        $legacy = Table::get(Core::TABLE_PREFIX . 'article');
+        if ($legacy->hasColumn('yrewrite_url_type')) {
+            $names = array_map(static fn (Column $column): string => $column->name, self::articleColumns());
+            $set = implode(', ', array_map(static fn (string $name): string => 't.' . $name . ' = a.' . $name, $names));
+            Sql::factory()->setQuery('UPDATE ' . Core::TABLE_PREFIX . 'article_translation t JOIN ' . Core::TABLE_PREFIX . 'article a ON a.id = t.article_id SET ' . $set);
+            foreach ($names as $name) {
+                $legacy->removeColumn($name);
+            }
+            $legacy->alter();
+            $urlTypeExists = true;
+        }
 
         if (!$urlTypeExists) {
-            Sql::factory()->setQuery('UPDATE ' . (Core::TABLE_PREFIX . 'article') . ' SET yrewrite_url_type = IF(yrewrite_url != "", "CUSTOM", "AUTO")');
+            Sql::factory()->setQuery('UPDATE ' . (Core::TABLE_PREFIX . 'article_translation') . ' SET yrewrite_url_type = IF(yrewrite_url != "", "CUSTOM", "AUTO")');
         }
 
         // Only domain/start_id/notfound_id are required; the rest is optional and therefore nullable,
@@ -293,12 +315,33 @@ class YRewriteAddon extends Addon
         Addon::require('yrewrite')->clearCache();
     }
 
+    /**
+     * URL and SEO columns of an article language version, in table order.
+     *
+     * @return list<Column>
+     */
+    private static function articleColumns(): array
+    {
+        return [
+            new Column('yrewrite_url_type', "enum('AUTO','CUSTOM','REDIRECTION_INTERNAL','REDIRECTION_EXTERNAL')", false, 'AUTO'),
+            new Column('yrewrite_url', 'text', true),
+            new Column('yrewrite_redirection', 'varchar(191)', true),
+            new Column('yrewrite_title', 'varchar(191)', true),
+            new Column('yrewrite_description', 'text', true),
+            new Column('yrewrite_image', 'varchar(191)', true),
+            new Column('yrewrite_changefreq', 'varchar(10)', true),
+            new Column('yrewrite_priority', 'varchar(5)', true),
+            new Column('yrewrite_index', 'tinyint(1)', true),
+            new Column('yrewrite_canonical_url', 'text', true),
+        ];
+    }
+
     #[Override]
     public function getOwnedSchema(): OwnedSchema
     {
         return new OwnedSchema(
             tables: [Core::TABLE_PREFIX . 'yrewrite_domain', Core::TABLE_PREFIX . 'yrewrite_alias', Core::TABLE_PREFIX . 'yrewrite_forward'],
-            columns: [Core::TABLE_PREFIX . 'article' => [
+            columns: [Core::TABLE_PREFIX . 'article_translation' => [
                 'yrewrite_url_type', 'yrewrite_url', 'yrewrite_redirection', 'yrewrite_title',
                 'yrewrite_description', 'yrewrite_image', 'yrewrite_changefreq', 'yrewrite_priority',
                 'yrewrite_index', 'yrewrite_canonical_url',
