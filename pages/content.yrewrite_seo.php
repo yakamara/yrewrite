@@ -63,7 +63,7 @@ $content .= '
             var ta = document.querySelector(\'[name="yrewrite_seo[description]"]\');
             if (!ta) { return; }
             var hint = document.createElement("p");
-            hint.className = "help-block";
+            hint.className = "rex-field-note";
             ta.parentNode.appendChild(hint);
             function upd() { hint.innerHTML = ta.value.replace(/(\r\n|\n|\r)/gm, "").length + " ' . $descInfo . '"; }
             ta.addEventListener("input", upd);

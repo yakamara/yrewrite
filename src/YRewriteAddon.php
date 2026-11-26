@@ -142,13 +142,13 @@ class YRewriteAddon extends Addon
                 if (!$this->getConfig('hide_url_block') && $user?->hasPerm('yrewrite[url]')) {
                     Extension::register(ContentPageSidebar::class, function (ContentPageSidebar $ep) use ($panelParams): string {
                         $panel = (string) $this->includeFile('pages/content.yrewrite_url.php', ['params' => $panelParams($ep)]);
-                        return $ep->subject . new Section(Html::raw('<i class="rex-icon rex-icon-info"></i> ' . $this->i18n('rewriter')), Html::raw($panel), collapsible: true)->render();
+                        return $ep->subject . new Section(Html::raw('<i class="rex-icon rex-icon-info" aria-hidden="true"></i> ' . $this->i18n('rewriter')), Html::raw($panel), collapsible: true)->render();
                     });
                 }
                 if (!$this->getConfig('hide_seo_block') && $user?->hasPerm('yrewrite[seo]')) {
                     Extension::register(ContentPageSidebar::class, function (ContentPageSidebar $ep) use ($panelParams): string {
                         $panel = (string) $this->includeFile('pages/content.yrewrite_seo.php', ['params' => $panelParams($ep)]);
-                        return $ep->subject . new Section(Html::raw('<i class="rex-icon rex-icon-info"></i> ' . $this->i18n('seo')), Html::raw($panel), collapsible: true)->render();
+                        return $ep->subject . new Section(Html::raw('<i class="rex-icon rex-icon-info" aria-hidden="true"></i> ' . $this->i18n('rewriter_seo')), Html::raw($panel), collapsible: true)->render();
                     });
                 }
             }

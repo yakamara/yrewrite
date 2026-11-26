@@ -79,11 +79,11 @@ yrewrite_warning_otherarticle = Zum anderen Artikel
 yrewrite_urlupdated = URL wurde aktualisiert
 
 yrewrite_seotitle = Titel
-yrewrite_seodescription = Description
+yrewrite_seodescription = Beschreibung
 yrewrite_seoimage = Bild
 yrewrite_seoimage_error_delete = SEO Bild des Artikels
-yrewrite_priority = Wichtigkeit:
-yrewrite_changefreq = Aktualisierungshäufigkeit:
+yrewrite_priority = Wichtigkeit
+yrewrite_changefreq = Aktualisierungshäufigkeit
 
 yrewrite_seoupdated = SEO-Daten wurden aktualisiert.
 

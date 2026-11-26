@@ -82,8 +82,8 @@ yrewrite_seotitle = Title
 yrewrite_seodescription = Description
 yrewrite_seoimage = Image
 yrewrite_seoimage_error_delete = SEO image of article
-yrewrite_priority = Priority:
-yrewrite_changefreq = Change frequency:
+yrewrite_priority = Priority
+yrewrite_changefreq = Change frequency
 
 yrewrite_seoupdated = SEO data has been updated.
 
