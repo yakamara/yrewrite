@@ -33,6 +33,9 @@ use Redaxo\Core\ExtensionPoint\Extension;
 use Redaxo\Core\ExtensionPoint\ExtensionLevel;
 use Redaxo\Core\ExtensionPoint\ExtensionPoint;
 use Redaxo\Core\Http\Request;
+use Redaxo\Core\Language\ExtensionPoint\LanguageAdded;
+use Redaxo\Core\Language\ExtensionPoint\LanguageDeleted;
+use Redaxo\Core\Language\ExtensionPoint\LanguageUpdated;
 use Redaxo\Core\MediaManager\ExtensionPoint\MediaManagerUrl;
 use Redaxo\Core\Security\ContentSecurityPolicy;
 use Redaxo\Core\Security\Permission;
@@ -127,6 +130,16 @@ class YRewriteAddon extends Addon
                         'parent_id' => $category->parentId ?? 0,
                         'extension_point' => $name,
                     ] + (in_array($name, ['CAT_UPDATED', 'CAT_STATUS'], true) ? ['language' => $category->languageId] : []));
+                });
+            }
+
+            // Languages decide the domains (the default domain covers all of them, the language prefix is
+            // hidden while there is only one) and every path: re-read both when they change, so later
+            // structure changes in the same request (imports, console commands, the api addon) find the
+            // new language instead of failing with an unknown language id.
+            foreach ([LanguageAdded::class, LanguageUpdated::class, LanguageDeleted::class] as $class) {
+                Extension::register($class, static function (): void {
+                    YRewrite::init();
                 });
             }
 
