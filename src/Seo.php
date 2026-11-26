@@ -201,12 +201,14 @@ class Seo
         header('Content-Type: text/plain');
         $content = 'Sitemap: ' . YRewrite::getFullPath('sitemap.xml') . "\n\n";
 
-        if ($d = YRewrite::getDomainByName($domain)) {
+        $d = YRewrite::getDomainByName($domain);
+        if ($d) {
             $robots = $d->getRobots();
             $content .= '' !== $robots ? $robots : self::$robotsDefault;
         }
 
-        echo $content;
+        // e.g. rules of other addons (an API path, crawlers of AI services) or a different sitemap
+        echo (string) Extension::dispatch(new ExtensionPoint('YREWRITE_ROBOTS', $content, ['domain' => $d]));
         exit;
     }
 
