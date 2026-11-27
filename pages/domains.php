@@ -46,6 +46,7 @@ if ('' != $func) {
     $yform->setValueField('text', ['title_scheme', $this->i18n('domain_title_scheme'), rex_yrewrite_seo::$title_scheme_default, 'notice' => '<small>' . $this->i18n('domain_title_scheme_info') . '</small>']);
     $yform->setValueField('checkbox', ['auto_redirect', $this->i18n('auto_redirects'), 'notice' => '<small>' . $this->i18n('yrewrite_auto_redirect') . '</small>']);
     $yform->setValueField('text', ['auto_redirect_days', $this->i18n('yrewrite_auto_redirect_days'), 'notice' => '<small>' . $this->i18n('yrewrite_auto_redirect_days_info') . '</small>']);
+    $yform->setValueField('checkbox', ['force_lowercase', $this->i18n('force_lowercase'), 'notice' => '<small>' . $this->i18n('yrewrite_force_lowercase_info') . '</small>']);
 
     $js = '
         <script nonce="' . rex_response::getNonce() . '">
@@ -136,6 +137,7 @@ if ($showlist) {
     $list->removeColumn('id');
     $list->removeColumn('auto_redirect');
     $list->removeColumn('auto_redirect_days');
+    $list->removeColumn('force_lowercase');
 
     $list->setColumnLabel('domain', $this->i18n('domain'));
     $list->setColumnLabel('mount_id', $this->i18n('mount_id'));

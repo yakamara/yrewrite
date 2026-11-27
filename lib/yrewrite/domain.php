@@ -29,8 +29,9 @@ class rex_yrewrite_domain
     private $robots;
     private $autoRedirect;
     private $autoRedirectDays;
+    private $forceLowercase;
 
-    public function __construct($name, $scheme, $path, $mountId, $startId, $notfoundId, ?array $clangs = null, $startClang = 1, $title = '', $description = '', $robots = '', $startClangHidden = false, $id = null, $autoRedirect = false, $autoRedirectDays = 0, $startClangAuto = false)
+    public function __construct($name, $scheme, $path, $mountId, $startId, $notfoundId, ?array $clangs = null, $startClang = 1, $title = '', $description = '', $robots = '', $startClangHidden = false, $id = null, $autoRedirect = false, $autoRedirectDays = 0, $startClangAuto = false, $forceLowercase = false)
     {
         $this->id = $id;
         $this->name = $name;
@@ -51,6 +52,7 @@ class rex_yrewrite_domain
         $this->robots = $robots;
         $this->autoRedirect = $autoRedirect;
         $this->autoRedirectDays = $autoRedirectDays;
+        $this->forceLowercase = $forceLowercase;
     }
 
     /**
@@ -195,6 +197,11 @@ class rex_yrewrite_domain
     public function getAutoRedirectDays()
     {
         return $this->autoRedirectDays;
+    }
+
+    public function isForceLowercase(): bool
+    {
+        return (bool) $this->forceLowercase;
     }
 
     public function __toString(): string
