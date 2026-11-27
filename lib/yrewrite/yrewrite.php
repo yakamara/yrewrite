@@ -178,9 +178,20 @@ class rex_yrewrite
 
     // ----- article
 
+    /**
+     * @return rex_yrewrite_domain|null
+     */
     public static function getCurrentDomain()
     {
-        $article_id = rex_article::getCurrent()->getId();
+        $article = rex_article::getCurrent();
+
+        if (null === $article) {
+            // Kein Artikelkontext, z.B. Auslieferung ueber den media_manager oder
+            // eine rex_api_function. Die Domain steckt dann im Host des Requests.
+            return self::getDomainByHost();
+        }
+
+        $article_id = $article->getId();
         $clang_id = rex_clang::getCurrent()->getId();
 
         foreach (self::$domainsByName as $name => $domain) {
@@ -189,6 +200,38 @@ class rex_yrewrite
             }
         }
         return null;
+    }
+
+    /**
+     * Ermittelt die Domain allein aus dem Host des aktuellen Requests.
+     *
+     * Die Reihenfolge entspricht rex_yrewrite_path_resolver::resolveDomain(),
+     * allerdings ohne die dort ausgeloesten Weiterleitungen.
+     *
+     * @return rex_yrewrite_domain|null null, wenn es keinen Host gibt (z.B. CLI)
+     */
+    private static function getDomainByHost()
+    {
+        $host = self::getHost();
+
+        if (null === $host || '' === $host) {
+            return null;
+        }
+
+        if (isset(self::$domainsByName[$host])) {
+            return self::$domainsByName[$host];
+        }
+
+        if (isset(self::$aliasDomains[$host])) {
+            return self::$aliasDomains[$host]['domain'];
+        }
+
+        $clang = rex_clang::getCurrentId();
+        if (isset(self::$domainsByMountId[0][$clang])) {
+            return self::$domainsByMountId[0][$clang];
+        }
+
+        return self::$domainsByName['default'] ?? null;
     }
 
     public static function getFullUrlByArticleId($article_id = null, $clang = null, array $parameters = [], $separator = '&amp;')
